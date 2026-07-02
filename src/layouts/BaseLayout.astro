@@ -1,0 +1,36 @@
+---
+import type { SiteMeta } from '@/types';
+import Navbar from '@/components/Navbar.astro';
+import Footer from '@/components/Footer.astro';
+import SEO from '@/components/SEO.astro';
+
+interface Props {
+  meta?: SiteMeta;
+}
+
+const { meta } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO meta={meta} />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+
+  <body class="font-normal text-base antialiased min-h-svh">
+    <a href="#main-content" class="text-white px-4 py-2 sr-only focus:not-sr-only focus:top-0 focus:left-0 z-toast focus:absolute bg-primary-600 transition-transform duration-300 skip-link">
+      Skip to main content
+    </a>
+
+    <Navbar />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>

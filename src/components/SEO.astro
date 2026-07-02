@@ -1,0 +1,119 @@
+---
+import type { SiteMeta } from '@/types';
+import { SITE_CONFIG } from '@/config/site';
+
+interface Props {
+  meta?: SiteMeta;
+}
+
+const { meta } = Astro.props;
+
+// Merge user-defined props with site defaults
+const seo = {
+  ...SITE_CONFIG,
+  ...meta,
+  title: meta?.title || SITE_CONFIG.title,
+  description: meta?.description || SITE_CONFIG.description,
+};
+
+// JSON-LD structured data
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${seo.url}/#website`,
+      "url": seo.url,
+      "name": seo.name,
+      "description": seo.description,
+      "inLanguage": "en-US",
+      "publisher": {
+        "@type": seo.business.type,
+        "@id": `${seo.url}/#organization`,
+      }
+    },
+    {
+      "@type": seo.business.type,
+      "@id": `${seo.url}/#organization`,
+      "name": seo.name,
+      "url": seo.url,
+      "logo": {
+        "@type": "ImageObject",
+        "url": new URL(seo.logo, seo.url).href,
+      },
+      "sameAs": [
+        seo.twitter ? `https://twitter.com/${seo.twitter}` : null,
+        seo.facebook ? `https://facebook.com/${seo.facebook}` : null,
+        seo.linkedin ? `https://linkedin.com/company/${seo.linkedin}` : null,
+      ].filter(Boolean)
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${Astro.url.href}/#webpage`,
+      "url": Astro.url.href,
+      "name": seo.title,
+      "inLanguage": "en-US",
+      "description": seo.description,
+      "isPartOf": {
+        "@id": `${seo.url}/#website`
+      },
+      "about": {
+        "@id": `${seo.url}/#organization`
+      },
+      "potentialAction": [
+        {
+          "@type": "ReadAction",
+          "target": [Astro.url.href]
+        }
+      ],
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@id": seo.url,
+            "name": "Home"
+          }
+        },
+        // Add more items here if needed
+      ]
+    }
+  ]
+};
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>{seo.title}</title>
+<meta name="description" content={seo.description} />
+<meta name="keywords" content={seo.keywords.join(',')} />
+<meta name="generator" content={Astro.generator} />
+
+<link rel="canonical" href={Astro.url.href} />
+
+<meta property="og:title" content={seo.title} />
+<meta property="og:description" content={seo.description} />
+<meta property="og:url" content={Astro.url.href} />
+<meta property="og:site_name" content={seo.name} />
+<meta property="og:type" content="website" />
+<meta property="og:image" content={new URL(seo.image, seo.url).href} />
+<meta property="og:image:alt" content={seo.imageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={seo.title} />
+<meta name="twitter:description" content={seo.description} />
+<meta name="twitter:site" content={seo.twitter} />
+<meta name="twitter:creator" content={seo.twitter} />
+<meta name="twitter:image" content={new URL(seo.image, seo.url).href} />
+<meta name="twitter:image:alt" content={seo.imageAlt} />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

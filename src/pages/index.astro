@@ -1,0 +1,29 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/sections/Hero.astro";
+import About from "@/sections/About.astro";
+import Services from "@/sections/Services.astro";
+import Features from "@/sections/Features.astro";
+import Testimonial from "@/sections/Testimonial.astro";
+import CTA from "@/sections/CTA.astro";
+import { SITE_CONFIG } from '@/config/site';
+
+// Create a new meta object by spreading the default SITE_CONFIG
+// and overriding the properties you want to change.
+const pageMeta = {
+  ...SITE_CONFIG,
+  title: "Your Business | Home",
+  description: "A description specific to your homepage.",
+};
+---
+
+<BaseLayout meta={pageMeta}>
+	<main>
+		<Hero />
+		<About />
+		<Services />
+		<Features />
+		<Testimonial />
+		<CTA />
+	</main>
+</BaseLayout>
