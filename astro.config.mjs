@@ -4,8 +4,12 @@ import sitemap from "@astrojs/sitemap";
 import robotsTxt from "astro-robots-txt";
 import autoImport from "astro-auto-import";
 
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineConfig({
-  site: "https://www.yourprojectdomain.com", // 🔁 Replace with your real domain
+  // 🔁 Replace with your real domain
+  site: "https://www.yourprojectdomain.com",
+
   integrations: [
     sitemap(),
     robotsTxt({
@@ -14,4 +18,8 @@ export default defineConfig({
     }),
     autoImport(),
   ],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
