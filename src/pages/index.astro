@@ -11,19 +11,17 @@ import { SITE_CONFIG } from "@/config/site";
 // Create a new meta object by spreading the default SITE_CONFIG
 // and overriding the properties you want to change.
 const pageMeta = {
-    ...SITE_CONFIG,
-    title: "Your Business | Home",
-    description: "A description specific to your homepage.",
+   ...SITE_CONFIG,
+   title: "Your Business | Home",
+   description: "A description specific to your homepage.",
 };
 ---
 
 <BaseLayout meta={pageMeta}>
-    <main>
-        <Hero />
-        <About />
-        <Services />
-        <Features />
-        <Testimonial />
-        <CTA />
-    </main>
+   <Hero />
+   <About />
+   <Services />
+   <Features />
+   <Testimonial />
+   <CTA />
 </BaseLayout>
