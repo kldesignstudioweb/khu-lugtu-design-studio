@@ -3,11 +3,9 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import robotsTxt from "astro-robots-txt";
 import autoImport from "astro-auto-import";
-
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  // 🔁 Replace with your real domain
   site: "https://www.yourprojectdomain.com",
 
   integrations: [
