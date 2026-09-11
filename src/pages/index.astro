@@ -1,18 +1,19 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/sections/Hero.astro";
-import About from "@/sections/About.astro";
 import Services from "@/sections/Services.astro";
-import Features from "@/sections/Features.astro";
-import Testimonial from "@/sections/Testimonial.astro";
-import CTA from "@/sections/CTA.astro";
+import CTA from "@/components/CTA.astro";
+import Works from "@/sections/Works.astro";
 ---
 
-<BaseLayout title="Homepage" description="Welcome to my site">
-   <Hero />
-   <About />
-   <Services />
-   <Features />
-   <Testimonial />
-   <CTA />
+<BaseLayout
+    title="Khu + Lugtu Design Studio | Home"
+    description="Welcome to my site"
+>
+    <main class="space-y-2">
+        <Hero />
+        <Works />
+        <Services />
+        <CTA />
+    </main>
 </BaseLayout>

@@ -1,0 +1,83 @@
+---
+// src/pages/works/index.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import CTA from "@/components/CTA.astro";
+
+import { Image } from "astro:assets";
+import { getAllWorks } from "@/lib/works";
+
+const works = await getAllWorks();
+
+// First work becomes the full-width hero.
+// The rest flow into the 12-column grid as half-width cards.
+const [heroWork, ...gridWorks] = works;
+---
+
+<BaseLayout
+    title="Khu + Lugtu Design Studio | Architecture & Design Studio, Philippines | Works"
+    description="Selected residential and commercial projects by Khu + Lugtu Design Studio."
+>
+    <main class="min-h-svh relative mt-[50svh]">
+        <div class="grid grid-cols-2 gap-2 items-center mb-8 p-4">
+            <h1 class="text-xl">Selected Works</h1>
+            <p class="text-muted">
+                A selection of residential and commercial projects built with a
+                focus on simplicity, function, and lasting design.
+            </p>
+        </div>
+
+        {works.length > 0 ? (
+            <div class="grid grid-cols-12 gap-2 mb-2">
+                {heroWork && (
+                    <article class="col-span-12">
+                        <a
+                            href={`/works/${heroWork.slug}`}
+                            class="group block relative"
+                        >
+                            <Image
+                                src={heroWork.coverImage}
+                                alt={`${heroWork.title} — ${heroWork.category}, ${heroWork.year}`}
+                                class="low-brightness h-svh"
+                                widths={[640, 960, 1280, 1600, 2000]}
+                                sizes="100vw"
+                            />
+                            <div class="mt-2 absolute top-0 left-0 p-4">
+                                <h2>{heroWork.title}</h2>
+                                <p class="text-muted max-w-prose">
+                                    {heroWork.description}
+                                </p>
+                            </div>
+                        </a>
+                    </article>
+                )}
+
+                {gridWorks.map((work) => (
+                    <article class="col-span-6">
+                        <a
+                            href={`/works/${work.slug}`}
+                            class="group block relative"
+                        >
+                            <Image
+                                src={work.coverImage}
+                                alt={`${work.title} — ${work.category}, ${work.year}`}
+                                class="h-svh"
+                                widths={[480, 640, 960, 1280]}
+                                sizes="(min-width: 768px) 50vw, 100vw"
+                            />
+                            <div class="mt-2 absolute top-0 left-0 p-4">
+                                <h2>{work.title}</h2>
+                                <p class="text-muted max-w-prose">
+                                    {work.description}
+                                </p>
+                            </div>
+                        </a>
+                    </article>
+                ))}
+            </div>
+        ) : (
+            <p class="p-4 text-muted">No works found.</p>
+        )}
+
+        <CTA />
+    </main>
+</BaseLayout>

@@ -6,7 +6,7 @@ import autoImport from "astro-auto-import";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://www.yourprojectdomain.com",
+  site: "https://kldesignstudio.com",
 
   integrations: [
     sitemap(),

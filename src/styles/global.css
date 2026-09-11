@@ -1,1 +1,74 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: "Inter Variable";
+    src: url("/fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+    font-weight: 400 700;
+    font-display: swap;
+}
+
+* {
+    scrollbar-width: none;
+    /*outline: 1px solid gray;*/
+}
+
+body {
+    font-family:
+        "Inter Variable",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        "Open Sans",
+        "Helvetica Neue",
+        sans-serif;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+
+    background-color: var(--clr-primary);
+    color: var(--clr-secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+    text-wrap: balance;
+    font-weight: inherit;
+    line-height: inherit;
+}
+
+/* Tailwind Classes */
+@theme {
+    --text-sm: 14px;
+    --text-base: 18px;
+    --text-lg: 36px;
+    --text-xl: 72px;
+
+    --clr-primary: #111;
+    --clr-secondary: #ffffff;
+    --clr-accent: gray;
+}
+
+@layer base {
+    img {
+        @apply block size-full object-cover object-bottom bg-no-repeat aspect-video;
+    }
+}
+
+@layer utilities {
+    .text-muted {
+        @apply text-(--clr-secondary) opacity-60;
+    }
+
+    .low-brightness {
+        @apply brightness-80;
+    }
+}
