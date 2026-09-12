@@ -18,10 +18,10 @@ const count = String(featured.length).padStart(2, "0");
       <p class="text-muted">Click image to view</p>
     </div>
 
-    <div class="flex gap-2 overflow-x-scroll">
+    <div class="flex gap-2 overflow-x-scroll snap-x snap-mandatory">
       {featured.map((work, i) => (
         <div>
-          <a href={`/works/${work.slug}`} class="relative block">
+          <a href={`/works/${work.slug}`} class="relative block snap-center">
             <Image
               src={work.coverImage}
               alt={work.title}
@@ -39,7 +39,7 @@ const count = String(featured.length).padStart(2, "0");
         </div>
       ))}
 
-      <div class="min-w-[20svw] flex justify-center items-center">
+      <div class="min-w-[20svw] flex justify-center items-center snap-end">
         <a href="/works" class="text-center">( View All Works )</a>
       </div>
     </div>

@@ -1,8 +1,14 @@
+---
+import { Image } from "astro:assets";
+import serviceImg1 from "@/images/pocket-house/pocket-house-3.webp";
+import serviceImg2 from "@/images/pocket-house/pocket-house-9.webp";
+---
+
 <section class="min-h-svh">
     <div class="grid lg:grid-cols-2 gap-2">
         <div class="relative">
-            <img
-                src="src/images/pocket-house/pocket-house-3.webp"
+            <Image
+                src={serviceImg1}
                 alt="pocket-house-entry-way"
                 loading="lazy"
                 class="h-svh low-brightness"
@@ -19,8 +25,8 @@
             </div>
         </div>
         <div class="relative">
-            <img
-                src="src/images/pocket-house/pocket-house-9.webp"
+            <Image
+                src={serviceImg2}
                 alt="pocket-house-bedroom"
                 loading="lazy"
                 class="h-svh low-brightness"
