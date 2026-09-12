@@ -1,6 +1,12 @@
+---
+import { Image } from "astro:assets";
+
+import heroImg from "@/images/go-residence/go-residence-3.webp";
+---
+
 <section class="h-svh relative text-white">
-    <img
-        src="src/images/go-residence/go-residence-3.webp"
+    <Image
+        src={heroImg}
         alt="go-residence-living-room"
         loading="eager"
         fetchpriority="high"

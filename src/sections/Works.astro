@@ -27,8 +27,7 @@ const count = String(featured.length).padStart(2, "0");
                                 widths={[640, 1024, 1600]}
                                 sizes="90svw"
                                 class="h-svh w-full object-cover low-brightness"
-                                loading={i === 0 ? "eager" : "lazy"}
-                                fetchpriority={i === 0 ? "high" : "auto"}
+                                loading="lazy"
                                 draggable="false"
                             />
 
