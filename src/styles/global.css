@@ -28,7 +28,7 @@ body {
         sans-serif;
     font-weight: 400;
     line-height: 1.25;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
 
     background-color: var(--clr-primary);
     color: var(--clr-secondary);
@@ -38,11 +38,12 @@ h1,
 h2,
 h3,
 h4,
-h5,
-p {
+h5 {
     text-wrap: balance;
-    font-weight: inherit;
-    line-height: inherit;
+}
+
+p {
+    text-wrap: pretty;
 }
 
 /* Tailwind Classes */
