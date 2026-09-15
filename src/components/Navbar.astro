@@ -13,29 +13,36 @@ import logo from "@/images/logo.webp";
         <span class="text-base tracking-widest font-normal">DESIGN STUDIO</span>
     </a> -->
 
-    <a href="">
-        <Image
-            src={logo}
-            alt={""}
-            class="block inset-0 object-contain aspect-auto w-50 object-right mb-8"
-            draggable="false"
-        />
-    </a>
+    <div class="max-w-60">
+        <a href="">
+            <Image
+                src={logo}
+                alt="Khu + Lugtu Design Studio Logo"
+                class="block object-cover aspect-auto w-fit mb-8"
+                draggable="false"
+            />
+        </a>
 
-    <nav>
-        <ul class="leading-tight group w-max">
-            <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out">
-                <a href="/">Home</a>
-            </li>
-            <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out">
-                <a href="/works">Works</a>
-            </li>
-            <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out">
-                <a href="/">Studio</a>
-            </li>
-            <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out">
-                <a href="/">Contact</a>
-            </li>
-        </ul>
-    </nav>
+        <h1 class="w-fit mb-8 text-sm">
+            An architectural design studio focused on creating calm, minimalist
+            homes built for everyday living.
+        </h1>
+
+        <nav>
+            <ul class="leading-tight group w-max uppercase space-y-4 text-sm">
+                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+                    <a href="/">Home</a>
+                </li>
+                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+                    <a href="/works">Works</a>
+                </li>
+                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+                    <a href="/">Studio</a>
+                </li>
+                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+                    <a href="/">Contact</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </header>
