@@ -1,19 +1,127 @@
 ---
 import { Image } from "astro:assets";
 
-import heroImg from "@/images/go-residence/go-residence-3.webp";
+import heroImg1 from "@/images/go-residence/go-residence-3.webp";
+import heroImg2 from "@/images/pocket-house/pocket-house-5.webp";
+import heroImg3 from "@/images/kohi-shop/kohi-shop-1.webp";
+
+const SLIDE_DURATION_MS = 5000;
+
+const slides = [
+    { src: heroImg1, alt: "Go Residence living room" },
+    { src: heroImg2, alt: "Pocket House Kitchen" },
+    { src: heroImg3, alt: "Kohi Shop Front View" },
+] as const;
 ---
 
-<section class="h-svh relative text-white">
-    <Image
-        src={heroImg}
-        alt="go-residence-living-room"
-        loading="eager"
-        fetchpriority="high"
-        class="low-brightness"
-    />
-    <h1 class="absolute bottom-0 m-4 max-w-sm">
+<section
+    class="hero relative h-svh overflow-hidden text-white"
+    data-slideshow
+    data-duration={SLIDE_DURATION_MS}
+    aria-roledescription="carousel"
+    aria-label="Featured residence imagery"
+>
+    <div class="absolute inset-0">
+        {slides.map((slide, i) => (
+            <div
+                class="hero__slide absolute inset-0 transition-opacity duration-700 ease-out"
+                data-slide
+                data-active={i === 0 ? "true" : "false"}
+                aria-hidden={i === 0 ? "false" : "true"}
+            >
+                <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchpriority={i === 0 ? "high" : "auto"}
+                    decoding={i === 0 ? "sync" : "async"}
+                    widths={[640, 1024, 1600, 2048]}
+                    sizes="100vw"
+                    class="low-brightness"
+                />
+            </div>
+        ))}
+    </div>
+
+    <h1 class="absolute bottom-0 z-10 m-4 max-w-sm">
         An architectural design studio focused on creating calm, minimalist
         homes built for everyday living.
     </h1>
+
+    {slides.length > 1 && (
+        <div
+            class="hero__indicator absolute bottom-4 right-4 z-10 flex items-center gap-2"
+            role="group"
+            aria-label="Slideshow navigation"
+        >
+            {slides.map((slide, i) => (
+                <button
+                    type="button"
+                    class="hero__track"
+                    data-indicator
+                    data-active={i === 0 ? "true" : "false"}
+                    aria-current={i === 0 ? "true" : "false"}
+                    aria-label={`Show image ${i + 1} of ${slides.length}: ${slide.alt}`}
+                >
+                    <span class="hero__track-fill" data-indicator-fill />
+                </button>
+            ))}
+        </div>
+    )}
 </section>
+
+<style>
+    .hero__slide {
+        opacity: 0;
+        will-change: opacity;
+    }
+    .hero__slide[data-active="true"] {
+        opacity: 1;
+    }
+
+    .hero__track {
+        position: relative;
+        height: 4px;
+        width: 16px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        transition: width 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* The active line expands in width. */
+    .hero__track[data-active="true"] {
+        width: 64px;
+    }
+
+    .hero__track:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 4px;
+    }
+
+    .hero__track-fill {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        border-radius: inherit;
+        /* Composited-only animation → no layout/paint. */
+        transform: scaleX(0);
+        transform-origin: left center;
+        will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero__slide,
+        .hero__track {
+            transition: none;
+        }
+    }
+</style>
+
+<script>
+    import "@/scripts/hero.ts";
+</script>
