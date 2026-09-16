@@ -66,7 +66,7 @@ p {
 
 @layer utilities {
     .text-muted {
-        @apply text-(--clr-secondary) opacity-60;
+        @apply text-white/70;
     }
 
     .low-brightness {

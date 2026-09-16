@@ -1,20 +1,11 @@
 ---
 import { Image } from "astro:assets";
-
 import logo from "@/images/logo.webp";
 ---
 
 <header class="absolute top-0 w-max z-50 m-4 text-white">
-    <!-- <a
-        href=""
-        class="block leading-none tracking-normal font-semibold mb-12 text-2xl"
-    >
-        KHU + LUGTU <br />
-        <span class="text-base tracking-widest font-normal">DESIGN STUDIO</span>
-    </a> -->
-
     <div class="max-w-60">
-        <a href="">
+        <a href="/">
             <Image
                 src={logo}
                 alt="Khu + Lugtu Design Studio Logo"
@@ -37,7 +28,15 @@ import logo from "@/images/logo.webp";
                     <a href="/works">Works</a>
                 </li>
                 <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-                    <a href="/">Studio</a>
+                    <button
+                        id="studio-toggle"
+                        type="button"
+                        class="cursor-pointer bg-transparent border-none p-0 text-inherit font-inherit uppercase tracking-[0.3em]"
+                        aria-haspopup="dialog"
+                        aria-controls="studio-overlay"
+                    >
+                        Studio
+                    </button>
                 </li>
                 <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
                     <a href="/">Contact</a>
@@ -46,3 +45,65 @@ import logo from "@/images/logo.webp";
         </nav>
     </div>
 </header>
+
+<script>
+    function initStudioOverlay(): void {
+        const studioToggleEl = document.getElementById("studio-toggle");
+        const studioOverlayEl = document.getElementById("studio-overlay");
+        const closeBtnEl = document.getElementById("studio-close");
+
+        // Runtime guard
+        if (
+            !(studioToggleEl instanceof HTMLElement) ||
+            !(studioOverlayEl instanceof HTMLElement) ||
+            !(closeBtnEl instanceof HTMLElement)
+        ) {
+            console.warn("[StudioOverlay] Required DOM elements not found.");
+            return;
+        }
+
+        // ✅ NEW BINDINGS: These are guaranteed non-null HTMLElement
+        // TS preserves this type in all nested closures
+        const studioToggle: HTMLElement = studioToggleEl;
+        const studioOverlay: HTMLElement = studioOverlayEl;
+        const closeBtn: HTMLElement = closeBtnEl;
+
+        function openOverlay(): void {
+            studioOverlay.classList.remove("hidden"); // ✅ No error
+            studioOverlay.classList.add("flex");
+            document.body.style.overflow = "hidden";
+            closeBtn.focus();
+        }
+
+        function closeOverlay(): void {
+            studioOverlay.classList.add("hidden"); // ✅ No error
+            studioOverlay.classList.remove("flex");
+            document.body.style.overflow = "";
+            studioToggle.focus();
+        }
+
+        studioToggle.addEventListener("click", openOverlay);
+        closeBtn.addEventListener("click", closeOverlay);
+
+        studioOverlay.addEventListener("click", (e: MouseEvent): void => {
+            if (e.target instanceof HTMLElement && e.target === studioOverlay) {
+                closeOverlay();
+            }
+        });
+
+        document.addEventListener("keydown", (e: KeyboardEvent): void => {
+            if (
+                e.key === "Escape" &&
+                !studioOverlay.classList.contains("hidden")
+            ) {
+                closeOverlay();
+            }
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initStudioOverlay);
+    } else {
+        initStudioOverlay();
+    }
+</script>

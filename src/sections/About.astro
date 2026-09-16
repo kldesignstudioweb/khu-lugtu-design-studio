@@ -1,11 +1,24 @@
-<section class="h-svh overflow-y-scroll fixed z-50 top-0 right-0 bg-black/40 backdrop-blur-sm hidden">
-    <div class="w-full max-w-120 p-4 flex flex-col justify-between h-full text-sm">
-        <a href="" class="flex justify-end mb-8">
+<section
+    id="studio-overlay"
+    class="h-svh overflow-y-scroll fixed z-50 top-0 right-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="studio-title"
+>
+    <div class="w-full md:max-w-140 p-4 flex flex-col justify-between h-full text-sm">
+        <button
+            id="studio-close"
+            type="button"
+            class="flex justify-end mb-8 cursor-pointer bg-transparent border-none p-0 text-inherit hover:opacity-70 transition-opacity"
+            aria-label="Close studio information"
+        >
             ( Close )
-        </a>
+        </button>
 
         <div class="divide-y divide-white/20 mb-16">
-            <h2 class="mb-4 pb-4 text-base">Our Studio</h2>
+            <h2 id="studio-title" class="mb-4 pb-4 text-base">
+                Our Studio
+            </h2>
             <p class="text-muted">
                 We believe great architecture is not defined by how much it
                 contains, but by how thoughtfully each element is considered.
@@ -52,11 +65,14 @@
             </div>
         </div>
 
-        <div class="pb-4">
-            <a href="" class="block">
+        <div class="">
+            <a
+                href="mailto:kldesignstudio@gmail.com"
+                class="block hover:underline"
+            >
                 E: kldesignstudio@gmail.com
             </a>
-            <a href="" class="block">
+            <a href="tel:+639123456789" class="block hover:underline">
                 P: +63 9123456789
             </a>
         </div>
