@@ -5,7 +5,7 @@ import heroImg1 from "@/images/go-residence/go-residence-3.webp";
 import heroImg2 from "@/images/pocket-house/pocket-house-5.webp";
 import heroImg3 from "@/images/kohi-shop/kohi-shop-1.webp";
 
-const SLIDE_DURATION_MS = 5000;
+const SLIDE_DURATION_MS = 3000;
 
 const slides = [
     { src: heroImg1, alt: "Go Residence living room" },
@@ -15,7 +15,7 @@ const slides = [
 ---
 
 <section
-    class="hero relative h-svh overflow-hidden text-white"
+    class="hero relative h-[calc(100svh-1rem)] overflow-hidden text-white"
     data-slideshow
     data-duration={SLIDE_DURATION_MS}
     aria-roledescription="carousel"
@@ -35,18 +35,11 @@ const slides = [
                     loading={i === 0 ? "eager" : "lazy"}
                     fetchpriority={i === 0 ? "high" : "auto"}
                     decoding={i === 0 ? "sync" : "async"}
-                    widths={[640, 1024, 1600, 2048]}
-                    sizes="100vw"
                     class="low-brightness"
                 />
             </div>
         ))}
     </div>
-
-    <!-- <h1 class="absolute bottom-0 z-10 m-4 max-w-sm">
-        An architectural design studio focused on creating calm, minimalist
-        homes built for everyday living.
-    </h1> -->
 
     {slides.length > 1 && (
         <div
@@ -81,7 +74,7 @@ const slides = [
 
     .hero__track {
         position: relative;
-        height: 4px;
+        height: 1px;
         width: 16px;
         padding: 0;
         border: 0;
