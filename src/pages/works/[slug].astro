@@ -70,7 +70,7 @@ const isWide = (i: number) =>
         </div>
 
         {/* ---------- Info ---------- */}
-        <div class="h-svh relative">
+        <div class="h-svh relative m-2">
             {infoImage && (
                 <Image
                     src={infoImage}
@@ -101,7 +101,7 @@ const isWide = (i: number) =>
 
         {/* ---------- Gallery ---------- */}
         {galleryImages.length > 0 && (
-            <div class="grid lg:grid-cols-2 gap-2">
+            <div class="grid lg:grid-cols-2 gap-2 m-2">
                 {galleryImages.map((img, i) => (
                     <Image
                         src={img}
@@ -120,7 +120,7 @@ const isWide = (i: number) =>
         )}
 
         {/* ---------- Outro: next work + back link ---------- */}
-        <div class="h-svh relative">
+        <div class="h-svh relative m-2">
             <Image
                 src={nextWork?.coverImage ?? coverImage}
                 alt={

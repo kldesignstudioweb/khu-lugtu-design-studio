@@ -6,58 +6,51 @@ const featured = await getFeaturedWorks();
 const count = String(featured.length).padStart(2, "0");
 ---
 
-<section class="min-h-svh text-white">
-    <div class="relative">
-        <div class="absolute top-4 left-4 z-10">
-            <h2>Featured Works ({count})</h2>
-            <p class="text-muted">Click image to view</p>
-        </div>
-
-        <div class="swiper featured-works">
-            <div class="swiper-wrapper">
-                {featured.map((work, i) => (
-                    <div class="swiper-slide">
-                        <a
-                            href={`/works/${work.slug}`}
-                            class="relative block h-svh"
-                        >
-                            <Image
-                                src={work.coverImage}
-                                alt={work.title}
-                                widths={[640, 1024, 1600]}
-                                sizes="90svw"
-                                class="h-svh w-full object-cover low-brightness"
-                                loading="lazy"
-                                draggable="false"
-                            />
-
-                            <h3 class="absolute bottom-4 left-4 text-lg! leading-none lg:text-xl! uppercase">
-                                {work.title}
-                            </h3>
-                        </a>
-                    </div>
-                ))}
-            </div>
-        </div>
+<section class="h-svh text-white m-2">
+  <div class="relative">
+    <div class="absolute top-4 left-4 z-10">
+      <h2>Featured Works ({count})</h2>
+      <p class="text-muted">Drag left/right to view</p>
     </div>
+
+    <div class="swiper featured-works">
+      <div class="swiper-wrapper">
+        {featured.map((work, i) => (
+          <div class="swiper-slide">
+            <a href={`/works/${work.slug}`} class="relative block h-svh">
+              <Image
+                src={work.coverImage}
+                alt={work.title}
+                class="low-brightness"
+                loading="lazy"
+                draggable="false"
+              />
+
+              <h3 class="absolute bottom-0 left-0 m-4 text-xl leading-none uppercase">
+                {work.title}
+              </h3>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 </section>
 
 <style>
-    .featured-works .swiper-slide {
-        width: 95svw;
-    }
+  .featured-works .swiper-slide {
+    width: 90svw;
+  }
 </style>
 
 <script>
-    import Swiper from "swiper";
-    import "swiper/css";
+  import Swiper from "swiper";
+  import "swiper/css";
 
-    new Swiper(".featured-works", {
-        slidesPerView: "auto",
-        centeredSlides: true,
-        centeredSlidesBounds: true,
-        spaceBetween: 8,
-        grabCursor: true,
-        speed: 800,
-    });
+  new Swiper(".featured-works", {
+    slidesPerView: "auto",
+    spaceBetween: 8,
+    grabCursor: true,
+    speed: 800,
+  });
 </script>

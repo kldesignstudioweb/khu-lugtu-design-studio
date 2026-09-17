@@ -17,11 +17,10 @@ const [heroWork, ...gridWorks] = works;
     title="Khu + Lugtu Design Studio | Architecture & Design Studio, Philippines | Works"
     description="Selected residential and commercial projects by Khu + Lugtu Design Studio."
 >
-    <main class="min-h-svh relative mt-[70svh]">
-        <h1 class="text-xl leading-none m-4">Selected Works</h1>
+    <main class="min-h-svh relative mt-[50svh]">
 
         {works.length > 0 ? (
-            <div class="grid grid-cols-12 gap-2 mb-2">
+            <div class="grid grid-cols-12 gap-2 m-2">
                 {heroWork && (
                     <article class="col-span-12 overflow-hidden">
                         <a
@@ -35,7 +34,9 @@ const [heroWork, ...gridWorks] = works;
                                 sizes="100vw"
                                 draggable="false"
                             />
-                            <div class="mt-2 absolute bottom-0 left-0 p-4">
+                            <h1 class="leading-none m-4 absolute top-0 left-0">Selected Works</h1>
+                            
+                            <div class="mt-2 absolute bottom-0 left-0 m-4">
                                 <h2>{heroWork.title}</h2>
                                 <p class="text-muted max-w-prose">
                                     {heroWork.description}
@@ -58,7 +59,7 @@ const [heroWork, ...gridWorks] = works;
                                 sizes="(min-width: 768px) 50vw, 100vw"
                                 draggable="false"
                             />
-                            <div class="mt-2 absolute bottom-0 left-0 p-4">
+                            <div class="mt-2 absolute bottom-0 left-0 m-4">
                                 <h2>{work.title}</h2>
                                 <p class="text-muted max-w-prose">
                                     {work.description}
