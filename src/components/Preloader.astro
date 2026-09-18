@@ -1,0 +1,80 @@
+---
+import { Image } from "astro:assets";
+import logo from "@/images/logo.webp";
+---
+
+<section
+  id="preloader"
+  aria-hidden="true"
+  class="bg-black inset-0 h-svh w-svw fixed top-0 left-0 z-999 flex justify-center items-center overflow-hidden"
+>
+  <div class="p-16">
+    <Image
+      id="preloader-logo"
+      src={logo}
+      alt=""
+      class="block object-cover aspect-auto max-h-16 w-max opacity-0"
+    />
+  </div>
+</section>
+
+<script>
+  import gsap from "gsap";
+
+  declare global {
+    interface Window {
+      __preloaderShown?: boolean;
+    }
+  }
+
+  const PRELOADER_ID = "preloader";
+  const LOGO_ID = "preloader-logo";
+
+  const removePreloader = (): void => {
+    document.getElementById(PRELOADER_ID)?.remove();
+  };
+
+  const runPreloader = (): void => {
+    const preloader = document.getElementById(PRELOADER_ID);
+    if (!preloader) return;
+
+    const logoEl = document.getElementById(LOGO_ID);
+    if (!logoEl) {
+      removePreloader();
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      removePreloader();
+      return;
+    }
+
+    gsap
+      .timeline({ onComplete: removePreloader })
+      .fromTo(
+        logoEl,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 1.5, ease: "power2.out" },
+      )
+      .to(logoEl, {
+        autoAlpha: 0,
+        duration: 0.6,
+        ease: "power2.in",
+        delay: 0.3,
+      })
+      .to(preloader, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" });
+  };
+
+  // Fires only on client-side navigations, before the browser paints.
+  document.addEventListener("astro:after-swap", removePreloader);
+
+  // Fires on hard load AND after every client-side navigation.
+  document.addEventListener("astro:page-load", () => {
+    if (window.__preloaderShown) {
+      removePreloader();
+      return;
+    }
+    window.__preloaderShown = true;
+    runPreloader();
+  });
+</script>
