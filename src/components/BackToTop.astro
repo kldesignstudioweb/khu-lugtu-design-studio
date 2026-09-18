@@ -1,18 +1,23 @@
----
-// No props needed, but you can make threshold configurable
-const threshold = 300; // pixels scrolled before button appears
----
-
 <button
+  transition:persist
   id="back-to-top"
   type="button"
   aria-label="Back to top"
   class="back-to-top"
 >
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-       fill="none" stroke="currentColor" stroke-width="2.5"
-       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12 19V5M5 12l7-7 7 7"/>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5M5 12l7-7 7 7" />
   </svg>
 </button>
 
@@ -39,7 +44,10 @@ const threshold = 300; // pixels scrolled before button appears
     opacity: 0;
     visibility: hidden;
     transform: translateY(1rem);
-    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      visibility 0.25s;
 
     /* Safe area for iOS notch devices */
     margin-bottom: env(safe-area-inset-bottom, 0);
@@ -58,44 +66,63 @@ const threshold = 300; // pixels scrolled before button appears
 
   @media (prefers-reduced-motion: reduce) {
     .back-to-top {
-      transition: opacity 0.2s ease, visibility 0.2s;
+      transition:
+        opacity 0.2s ease,
+        visibility 0.2s;
       transform: none;
     }
   }
 </style>
 
 <script>
-  const THRESHOLD = 300; // must match the intent of the component; safe on all devices
+  const init = () => {
+    const button = document.getElementById("back-to-top");
+    if (!button || button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
 
-  const button = document.getElementById('back-to-top');
-  if (button) {
+    const THRESHOLD = Number(button.dataset.threshold) || 300;
     let ticking = false;
+    let rafId = 0;
 
     const toggleVisibility = () => {
       const scrolled = window.scrollY || document.documentElement.scrollTop;
-      button.classList.toggle('is-visible', scrolled > THRESHOLD);
+      button.classList.toggle("is-visible", scrolled > THRESHOLD);
       ticking = false;
     };
 
     const onScroll = () => {
       if (!ticking) {
-        requestAnimationFrame(toggleVisibility);
+        rafId = requestAnimationFrame(toggleVisibility);
         ticking = true;
       }
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const onClick = () => {
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    };
 
-    button.addEventListener('click', () => {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      window.scrollTo({
-        top: 0,
-        behavior: reduceMotion ? 'auto' : 'smooth',
-      });
-    });
-
-    // Sync on load (e.g., refreshed mid-page or bfcache restore)
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pageshow", toggleVisibility);
+    button.addEventListener("click", onClick);
     toggleVisibility();
-    window.addEventListener('pageshow', toggleVisibility);
-  }
+
+    // Cleanup on Astro navigation
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("pageshow", toggleVisibility);
+        button.removeEventListener("click", onClick);
+        cancelAnimationFrame(rafId);
+        delete button.dataset.bound;
+      },
+      { once: true },
+    );
+  };
+
+  init();
+  document.addEventListener("astro:page-load", init);
 </script>

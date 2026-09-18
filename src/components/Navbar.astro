@@ -3,107 +3,131 @@ import { Image } from "astro:assets";
 import logo from "@/images/logo.webp";
 ---
 
-<header class="absolute top-0 w-max z-50 m-4 text-white">
-    <div class="max-w-60">
-        <a href="/">
-            <Image
-                src={logo}
-                alt="Khu + Lugtu Design Studio Logo"
-                class="block object-cover aspect-auto w-fit mb-8"
-                draggable="false"
-            />
-        </a>
+<header transition:persist class="absolute top-0 w-max z-50 m-4 text-white">
+  <div class="max-w-60">
+    <a href="/">
+      <Image
+        src={logo}
+        alt="Khu + Lugtu Design Studio Logo"
+        class="block object-cover aspect-auto w-fit mb-8"
+        draggable="false"
+      />
+    </a>
 
-        <h1 class="w-fit mb-8 text-sm">
-            An architectural design studio focused on creating calm, minimalist
-            homes built for everyday living.
-        </h1>
+    <h1 class="w-fit mb-8 text-sm">
+      An architectural design studio focused on creating calm, minimalist homes
+      built for everyday living.
+    </h1>
 
-        <nav>
-            <ul class="leading-tight group w-max uppercase space-y-4 text-sm">
-                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-                    <a href="/">Home</a>
-                </li>
-                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-                    <a href="/works">Works</a>
-                </li>
-                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-                    <button
-                        id="studio-toggle"
-                        type="button"
-                        class="cursor-pointer bg-transparent border-none p-0 text-inherit font-inherit uppercase tracking-[0.3em]"
-                        aria-haspopup="dialog"
-                        aria-controls="studio-overlay"
-                    >
-                        Studio
-                    </button>
-                </li>
-                <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-                    <a href="/">Contact</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+    <nav>
+      <ul class="leading-tight group w-max uppercase space-y-4 text-sm">
+        <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+          <a href="/">Home</a>
+        </li>
+        <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+          <a href="/works">Works</a>
+        </li>
+        <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+          <button
+            id="studio-toggle"
+            type="button"
+            class="cursor-pointer bg-transparent border-none p-0 text-inherit font-inherit uppercase tracking-[0.3em]"
+            aria-haspopup="dialog"
+            aria-controls="studio-overlay"
+          >
+            Studio
+          </button>
+        </li>
+        <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
+          <a href="/">Contact</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
 <script>
-    function initStudioOverlay(): void {
-        const studioToggleEl = document.getElementById("studio-toggle");
-        const studioOverlayEl = document.getElementById("studio-overlay");
-        const closeBtnEl = document.getElementById("studio-close");
+  // Module-scoped so we can clean up on the next navigation.
+  // Astro re-executes this <script> on each page load, so `cleanup`
+  // refers to the *previous* navigation's cleanup by the time
+  // `astro:page-load` fires again.
+  let cleanup: (() => void) | undefined;
 
-        // Runtime guard
-        if (
-            !(studioToggleEl instanceof HTMLElement) ||
-            !(studioOverlayEl instanceof HTMLElement) ||
-            !(closeBtnEl instanceof HTMLElement)
-        ) {
-            console.warn("[StudioOverlay] Required DOM elements not found.");
-            return;
-        }
+  function initStudioOverlay(): void {
+    // Run cleanup from the previous page before wiring up the new one.
+    cleanup?.();
 
-        // ✅ NEW BINDINGS: These are guaranteed non-null HTMLElement
-        // TS preserves this type in all nested closures
-        const studioToggle: HTMLElement = studioToggleEl;
-        const studioOverlay: HTMLElement = studioOverlayEl;
-        const closeBtn: HTMLElement = closeBtnEl;
+    const studioToggleEl = document.getElementById("studio-toggle");
+    const studioOverlayEl = document.getElementById("studio-overlay");
+    const closeBtnEl = document.getElementById("studio-close");
 
-        function openOverlay(): void {
-            studioOverlay.classList.remove("hidden"); // ✅ No error
-            studioOverlay.classList.add("flex");
-            document.body.style.overflow = "hidden";
-            closeBtn.focus();
-        }
-
-        function closeOverlay(): void {
-            studioOverlay.classList.add("hidden"); // ✅ No error
-            studioOverlay.classList.remove("flex");
-            document.body.style.overflow = "";
-            studioToggle.focus();
-        }
-
-        studioToggle.addEventListener("click", openOverlay);
-        closeBtn.addEventListener("click", closeOverlay);
-
-        studioOverlay.addEventListener("click", (e: MouseEvent): void => {
-            if (e.target instanceof HTMLElement && e.target === studioOverlay) {
-                closeOverlay();
-            }
-        });
-
-        document.addEventListener("keydown", (e: KeyboardEvent): void => {
-            if (
-                e.key === "Escape" &&
-                !studioOverlay.classList.contains("hidden")
-            ) {
-                closeOverlay();
-            }
-        });
+    if (
+      !(studioToggleEl instanceof HTMLElement) ||
+      !(studioOverlayEl instanceof HTMLElement) ||
+      !(closeBtnEl instanceof HTMLElement)
+    ) {
+      console.warn("[StudioOverlay] Required DOM elements not found.");
+      return;
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initStudioOverlay);
-    } else {
-        initStudioOverlay();
+    const studioToggle: HTMLElement = studioToggleEl;
+    const studioOverlay: HTMLElement = studioOverlayEl;
+    const closeBtn: HTMLElement = closeBtnEl;
+
+    function openOverlay(): void {
+      studioOverlay.classList.remove("hidden");
+      studioOverlay.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      closeBtn.focus();
     }
+
+    function closeOverlay(): void {
+      studioOverlay.classList.add("hidden");
+      studioOverlay.classList.remove("flex");
+      document.body.style.overflow = "";
+      studioToggle.focus();
+    }
+
+    function onOverlayClick(e: MouseEvent): void {
+      if (e.target instanceof HTMLElement && e.target === studioOverlay) {
+        closeOverlay();
+      }
+    }
+
+    function onKeydown(e: KeyboardEvent): void {
+      if (e.key === "Escape" && !studioOverlay.classList.contains("hidden")) {
+        closeOverlay();
+      }
+    }
+
+    // Bind to the *new* nodes
+    studioToggle.addEventListener("click", openOverlay);
+    closeBtn.addEventListener("click", closeOverlay);
+    studioOverlay.addEventListener("click", onOverlayClick);
+    document.addEventListener("keydown", onKeydown);
+
+    // Store a cleanup that removes everything bound outside the swapped tree
+    cleanup = () => {
+      document.removeEventListener("keydown", onKeydown);
+      // The overlay/toggle/close nodes are about to be discarded by the
+      // view transition, but removing these explicitly is harmless and
+      // protects against the elements being reused.
+      studioToggle.removeEventListener("click", openOverlay);
+      closeBtn.removeEventListener("click", closeOverlay);
+      studioOverlay.removeEventListener("click", onOverlayClick);
+
+      // Reset any global state we mutated
+      document.body.style.overflow = "";
+    };
+  }
+
+  // Fires on initial load AND after every ClientRouter navigation.
+  document.addEventListener("astro:page-load", initStudioOverlay);
+
+  // Tear down *before* the old DOM is swapped out, so we don't leak
+  // document-level listeners into the next page.
+  document.addEventListener("astro:before-swap", () => {
+    cleanup?.();
+    cleanup = undefined;
+  });
 </script>

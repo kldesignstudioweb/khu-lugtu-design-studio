@@ -5,10 +5,11 @@ import { SEO } from "astro-seo";
 import "@/styles/global.css";
 import About from "@/sections/About.astro";
 import BackToTop from "@/components/BackToTop.astro";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
-    title: string;
-    description?: string;
+  title: string;
+  description?: string;
 }
 
 const { title, description } = Astro.props;
@@ -16,26 +17,43 @@ const { title, description } = Astro.props;
 
 <!doctype html>
 <html lang="en" class="scroll-smooth">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <SEO title={title} description={description} />
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO title={title} description={description} />
+    <ClientRouter />
+  </head>
 
-    <body class="antialiased text-base">
-        <Navbar />
-        <About />
-        <slot />
-        <BackToTop/>
-        <Footer />
-    </body>
+  <body class="antialiased text-base">
+    <Navbar />
+    <About />
+    <slot />
+    <BackToTop />
+    <Footer />
+  </body>
 </html>
 
 <script>
-    import Lenis from "lenis";
+  import Lenis from "lenis";
 
-    // Initialize Lenis
-    const lenis = new Lenis({
-        autoRaf: true,
-    });
+  let lenis: Lenis | undefined;
+
+  function initLenis() {
+    // Prevent duplicate instances on repeated astro:page-load events
+    if (lenis) return;
+
+    lenis = new Lenis({ autoRaf: true });
+  }
+
+  function destroyLenis() {
+    lenis?.destroy();
+    lenis = undefined;
+  }
+
+  // Initial load
+  initLenis();
+
+  // Astro ClientRouter lifecycle
+  document.addEventListener("astro:before-swap", destroyLenis);
+  document.addEventListener("astro:page-load", initLenis);
 </script>
