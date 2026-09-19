@@ -21,22 +21,35 @@ import logo from "@/images/logo.webp";
 <script>
   import gsap from "gsap";
 
+  // Global type augmentation for preloader state
   declare global {
     interface Window {
       __preloaderShown?: boolean;
+      __preloaderComplete?: boolean;
     }
   }
 
   const PRELOADER_ID = "preloader";
   const LOGO_ID = "preloader-logo";
+  const COMPLETE_EVENT = "app:preloader-complete";
+
+  const signalComplete = (): void => {
+    if (window.__preloaderComplete) return;
+    window.__preloaderComplete = true;
+    window.dispatchEvent(new CustomEvent(COMPLETE_EVENT));
+  };
 
   const removePreloader = (): void => {
     document.getElementById(PRELOADER_ID)?.remove();
+    signalComplete();
   };
 
   const runPreloader = (): void => {
     const preloader = document.getElementById(PRELOADER_ID);
-    if (!preloader) return;
+    if (!preloader) {
+      signalComplete();
+      return;
+    }
 
     const logoEl = document.getElementById(LOGO_ID);
     if (!logoEl) {
@@ -65,13 +78,15 @@ import logo from "@/images/logo.webp";
       .to(preloader, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" });
   };
 
-  // Fires only on client-side navigations, before the browser paints.
-  document.addEventListener("astro:after-swap", removePreloader);
+  // On SPA navigation, skip preloader but ensure signal fires
+  document.addEventListener("astro:after-swap", () => {
+    window.__preloaderShown = false; // Reset for potential future hard loads
+    removePreloader();
+  });
 
-  // Fires on hard load AND after every client-side navigation.
   document.addEventListener("astro:page-load", () => {
     if (window.__preloaderShown) {
-      removePreloader();
+      signalComplete();
       return;
     }
     window.__preloaderShown = true;
