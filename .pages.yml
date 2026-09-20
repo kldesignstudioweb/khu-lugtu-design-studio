@@ -1,0 +1,60 @@
+media:
+  - name: project-images
+    label: Project Images
+    path: src/images
+    extensions: [jpg, jpeg, png, webp, avif]
+
+collections:
+  - name: works
+    label: Works
+    path: src/content/works
+    format: mdx
+    filename: "{slug}.mdx"
+    fields:
+      - name: slug
+        type: string
+        required: true
+        pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+
+      - name: title
+        type: string
+        required: true
+
+      - name: year
+        type: number
+        required: true
+        default: 2026
+
+      - name: category
+        type: select
+        required: true
+        options:
+          - Residential
+          - Commercial
+          - Cultural
+          - Interior
+
+      - name: description
+        type: text
+        required: true
+
+      - name: coverImage
+        type: image
+        required: true
+        options:
+          media: project-images
+          rename: safe
+
+      - name: images
+        type: image
+        options:
+          media: project-images
+          multiple:
+            max: 30
+          unique: true
+          rename: safe
+          extensions: [jpg, jpeg, png, webp, avif]
+
+      - name: featured
+        type: boolean
+        default: true
