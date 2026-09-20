@@ -2,6 +2,7 @@ media:
   - name: project-images
     label: Project Images
     path: src/images
+    input: src/images
     extensions: [jpg, jpeg, png, webp, avif]
 
 collections:
