@@ -10,7 +10,7 @@ const count = String(featured.length).padStart(2, "0");
   <div class="relative">
     <div class="absolute top-4 left-4 z-10">
       <h2>Featured Works ({count})</h2>
-      <p class="text-muted">Drag left/right to view</p>
+      <p class="text-muted">Drag or swipe left/right to view</p>
     </div>
 
     <div class="featured-works overflow-hidden">
@@ -58,36 +58,56 @@ const count = String(featured.length).padStart(2, "0");
 
   gsap.registerPlugin(Draggable, InertiaPlugin);
 
+  interface Bounds {
+    minX: number;
+    maxX: number;
+  }
+
   let cleanup: (() => void) | undefined;
 
-  function destroyFeaturedWorks() {
+  function destroyFeaturedWorks(): void {
     cleanup?.();
     cleanup = undefined;
 
-    // Kill any lingering Draggable on either track (handles swapped DOM)
     document
       .querySelectorAll<HTMLElement>(".featured-works__track")
-      .forEach((el) => Draggable.get(el)?.kill());
+      .forEach((el: HTMLElement) => Draggable.get(el)?.kill());
   }
 
-  function initFeaturedWorks() {
-    // Always clean up first — prevents duplicates across HMR / repeat events
+  function initFeaturedWorks(): void {
     destroyFeaturedWorks();
 
     const track = document.querySelector<HTMLElement>(".featured-works__track");
     const container = document.querySelector<HTMLElement>(".featured-works");
+
     if (!track || !container) return;
 
-    const getBounds = () => ({
+    let currentX = 0;
+    let bounds: Bounds = { minX: 0, maxX: 0 };
+    let isDragging = false;
+
+    const getBounds = (): Bounds => ({
       minX: container.offsetWidth - track.scrollWidth,
       maxX: 0,
     });
 
-    const { minX, maxX } = getBounds();
+    bounds = getBounds();
+
+    // Clamp utility to keep translation within bounds
+    const clampX = (val: number): number =>
+      Math.max(bounds.minX, Math.min(bounds.maxX, val));
+
+    // Syncs internal state with Draggable's actual transform (e.g., after inertia ends)
+    const syncStateFromDraggable = (): void => {
+      const draggableInstance = Draggable.get(track);
+      if (draggableInstance) {
+        currentX = draggableInstance.x;
+      }
+    };
 
     const instance = Draggable.create(track, {
       type: "x",
-      bounds: { minX, maxX },
+      bounds: { minX: bounds.minX, maxX: bounds.maxX },
       inertia: true,
       cursor: "grab",
       activeCursor: "grabbing",
@@ -95,9 +115,11 @@ const count = String(featured.length).padStart(2, "0");
       dragResistance: 0,
       allowContextMenu: true,
       onPress() {
+        isDragging = true;
         track.classList.add("is-dragging");
       },
       onRelease() {
+        isDragging = false;
         track.classList.remove("is-dragging");
       },
       onDragStart() {
@@ -105,21 +127,55 @@ const count = String(featured.length).padStart(2, "0");
       },
       onDragEnd() {
         track.style.pointerEvents = "";
+        syncStateFromDraggable();
+      },
+      onThrowComplete() {
+        syncStateFromDraggable();
       },
     })[0];
 
-    const onResize = () => {
-      if (!instance) return;
-      instance.applyBounds(getBounds());
+    // Touchpad / Mouse Wheel Support
+    const handleWheel = (e: WheelEvent): void => {
+      // Only intercept horizontal gestures (touchpad swipe)
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+
+      e.preventDefault();
+
+      // If user touches touchpad while GSAP inertia/drag is running, kill it to take manual control
+      if (instance.isDragging || instance.isThrowing) {
+        instance.endDrag();
+        gsap.killTweensOf(track);
+      }
+
+      currentX = clampX(currentX - e.deltaX);
+
+      // Apply directly without animation for 1:1 touchpad tracking feel
+      gsap.set(track, { x: currentX });
     };
 
-    // Recalc once images have loaded (SVW widths + lazy images shift scrollWidth)
-    const onLoad = () => instance?.applyBounds(getBounds());
-    track.querySelectorAll("img").forEach((img) => {
-      if (!img.complete) img.addEventListener("load", onLoad, { once: true });
-    });
+    // Passive: false is strictly required to allow preventDefault on wheel events
+    container.addEventListener("wheel", handleWheel, { passive: false });
 
-    // ResizeObserver is more robust than window resize for layout-driven bounds
+    const onResize = (): void => {
+      bounds = getBounds();
+      instance.applyBounds({ minX: bounds.minX, maxX: bounds.maxX });
+
+      // Re-clamp current position if viewport shrank
+      currentX = clampX(currentX);
+      gsap.set(track, { x: currentX });
+    };
+
+    const onLoad = (): void => {
+      bounds = getBounds();
+      instance.applyBounds({ minX: bounds.minX, maxX: bounds.maxX });
+    };
+
+    track
+      .querySelectorAll<HTMLImageElement>("img")
+      .forEach((img: HTMLImageElement) => {
+        if (!img.complete) img.addEventListener("load", onLoad, { once: true });
+      });
+
     const ro = new ResizeObserver(onResize);
     ro.observe(container);
     ro.observe(track);
@@ -127,8 +183,9 @@ const count = String(featured.length).padStart(2, "0");
     window.addEventListener("resize", onResize);
 
     cleanup = () => {
-      instance?.kill();
+      instance.kill();
       ro.disconnect();
+      container.removeEventListener("wheel", handleWheel);
       window.removeEventListener("resize", onResize);
     };
   }

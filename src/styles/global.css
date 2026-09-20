@@ -60,7 +60,7 @@ p {
 
 @layer base {
   img {
-    @apply block size-full object-cover object-center bg-no-repeat aspect-video;
+    @apply block size-full object-cover object-center bg-no-repeat aspect-auto;
   }
 }
 
