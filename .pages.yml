@@ -73,9 +73,8 @@ content:
 
 settings:
   commit:
-    identity: user
     templates:
-      create: "feat(works): add {name}"
-      update: "update(works): update {name}"
-      delete: "remove(works): delete {name}"
-      rename: "refactor(works): rename {oldFilename} to {newFilename}"
+      create: "feat(works): add project entry - {filename}"
+      update: "content(works): update project details - {filename}"
+      delete: "content(works): remove project entry - {filename}"
+      rename: "refactor(works): rename project file - {oldFilename} -> {newFilename}"
