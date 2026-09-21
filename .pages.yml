@@ -34,7 +34,7 @@ content:
         label: Cover Image
         type: image
         options:
-          media: images
+          media: media
           path: src/images
 
       - name: images
