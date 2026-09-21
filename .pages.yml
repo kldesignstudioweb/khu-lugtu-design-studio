@@ -11,14 +11,17 @@ content:
       - name: title
         label: Project Title
         type: string
+        required: true
 
       - name: slug
         label: Project Slug
         type: string
+        required: true
 
       - name: year
         label: Year Completed
         type: number
+        required: true
         options:
           min: 1900
           max: 2100
@@ -26,20 +29,24 @@ content:
       - name: category
         label: Project Category
         type: select
+        required: true
         options:
           values: [Residential, Commercial]
 
       - name: description
         label: Project Description
         type: text
+        required: true
 
       - name: cover
         label: Cover Image
         type: image
+        required: true
 
       - name: images
         label: Image Gallery
         type: image
+        required: true
         options:
           multiple:
             max: 10
