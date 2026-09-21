@@ -1,11 +1,18 @@
 media:
   input: src/images
-  output: /images
+  output: /src/images
 
 content:
-  - name: Works
+  - name: works
+    label: Works
     type: collection
     path: src/content/works
+    filename: "{primary}.md"
+
+    view:
+      primary: title
+      fields: [title, year, category, featured]
+      sort: [year desc]
 
     fields:
       - name: title
@@ -38,7 +45,7 @@ content:
         type: text
         required: true
 
-      - name: cover
+      - name: coverImage
         label: Cover Image
         type: image
         required: true
@@ -52,9 +59,7 @@ content:
             max: 10
             unique: true
             extensions: [webp]
-            rename: true
 
       - name: featured
         label: Featured Project
         type: boolean
-        
