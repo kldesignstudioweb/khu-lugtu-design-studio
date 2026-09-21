@@ -6,3 +6,48 @@ content:
   - name: Works
     type: collection
     path: content/works
+
+    fields:
+      - name: title
+        label: Project Title
+        type: string
+
+      - name: slug
+        label: Project Slug
+        type: string
+
+      - name: year
+        label: Year Completed
+        type: number
+
+      - name: category
+        label: Project Category
+        type: select
+        options:
+          values: [Residential, Commercial]
+
+      - name: description
+        label: Project Description
+        type: text
+
+      - name: cover
+        label: Cover Image
+        type: image
+        options:
+          media: images
+          path: src/images
+
+      - name: images
+        label: Image Gallery
+        type: image
+        options:
+          multiple:
+            max: 10
+            unique: true
+            extensions: [webp]
+            rename: true
+
+      - name: featured
+        label: Featured Project
+        type: boolean
+        
