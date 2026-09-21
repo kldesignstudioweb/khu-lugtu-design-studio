@@ -5,7 +5,7 @@ media:
 content:
   - name: Works
     type: collection
-    path: content/works
+    path: src/content/works
 
     fields:
       - name: title
