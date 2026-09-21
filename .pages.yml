@@ -33,9 +33,6 @@ content:
       - name: cover
         label: Cover Image
         type: image
-        options:
-          media: media
-          path: src/images
 
       - name: images
         label: Image Gallery
