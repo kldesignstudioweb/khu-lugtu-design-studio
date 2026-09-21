@@ -63,3 +63,25 @@ content:
       - name: featured
         label: Featured Project
         type: boolean
+
+settings:
+  commit:
+    identity: user
+    templates:
+      create: "feat(works): add {name}"
+      update: "update(works): update {name}"
+      delete: "remove(works): delete {name}"
+      rename: "refactor(works): rename {oldFilename} to {newFilename}"
+
+content:
+  - name: Works
+    label: Works
+    type: collection
+    path: src/content/works
+
+    commit:
+      templates:
+        create: "feat(works): add {name}"
+        update: "update(works): update {name}"
+        delete: "remove(works): delete {name}"
+        rename: "refactor(works): rename {oldFilename} to {newFilename}"
