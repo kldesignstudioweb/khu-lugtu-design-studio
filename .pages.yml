@@ -19,6 +19,9 @@ content:
       - name: year
         label: Year Completed
         type: number
+        options:
+          min: 1900
+          max: 2100
 
       - name: category
         label: Project Category
