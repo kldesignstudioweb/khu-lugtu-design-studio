@@ -1,60 +1,98 @@
 media:
-  - name: project-images
-    label: Project Images
-    path: src/images
-    extensions: [jpg, jpeg, png, webp, avif]
+  input: src/images
+  output: /src/images
+  extensions: [webp]
 
-collections:
+content:
   - name: works
     label: Works
+    type: collection
     path: src/content/works
-    format: mdx
-    filename: "{slug}.mdx"
-    fields:
-      - name: slug
-        type: string
-        required: true
-        pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    filename: "{slug}.md"
 
+    commit:
+      templates:
+        create: "feat(works): add project entry - {filename}"
+        update: "refactor(works): update project details - {filename}"
+        delete: "refactor(works): remove project entry - {filename}"
+        rename: "refactor(works): rename project file - {oldFilename} -> {newFilename}"
+
+    view:
+      primary: title
+      fields: [title, year, category, featured]
+      sort: [year, title]
+      default:
+        sort: year
+        order: desc
+
+    fields:
       - name: title
+        label: Project Title
         type: string
         required: true
+        description: "Enter the project name as it should appear on the website."
+
+      - name: slug
+        label: Project Slug
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          message: "Use lowercase letters, numbers, and hyphens only."
+        description: "Used in the project URL. Avoid changing it after publication."
 
       - name: year
+        label: Year Completed
         type: number
         required: true
-        default: 2026
+        options:
+          min: 1900
+          max: 2100
+        description: "Enter the year the project was completed."
 
       - name: category
+        label: Project Category
         type: select
         required: true
         options:
-          - Residential
-          - Commercial
-          - Cultural
-          - Interior
+          values: [Residential, Commercial]
+        description: "Choose the category that best describes this project."
 
       - name: description
+        label: Project Description
         type: text
         required: true
+        description: "Write a concise/short summary of the project."
 
       - name: coverImage
+        label: Cover Image
         type: image
         required: true
         options:
-          media: project-images
-          rename: safe
+          unique: true
+          extensions: [webp]
+        description: "Choose the main image displayed for this project."
 
       - name: images
+        label: Image Gallery
         type: image
+        required: true
         options:
-          media: project-images
           multiple:
-            max: 30
-          unique: true
-          rename: safe
-          extensions: [jpg, jpeg, png, webp, avif]
+            max: 10
+            unique: true
+            extensions: [webp]
+        description: "Add up to 10 project images. Arrange them in the order you want them displayed."
 
       - name: featured
+        label: Featured Project
         type: boolean
-        default: true
+        description: "Enable this if the project should appear in the featured works section."
+
+settings:
+  commit:
+    templates:
+      create: "feat(content): create {path}"
+      update: "refactor: update {path}"
+      delete: "refactor: delete {path}"
+      rename: "refactor: rename {oldPath} -> {newPath}"
