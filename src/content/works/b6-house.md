@@ -1,6 +1,6 @@
 ---
-slug: b6-house
 title: B6 House
+slug: b6-house
 year: 2026
 category: Residential
 description: A retreat that recedes into the landscape it sits within.
@@ -16,5 +16,5 @@ images:
   - /src/images/b6-house/b6-house-11.webp
   - /src/images/b6-house/b6-house-12.webp
   - /src/images/b6-house/b6-house-13.webp
-featured: true
+featured: false
 ---
