@@ -1,6 +1,10 @@
 media:
   input: src/images
   output: /src/images
+<<<<<<< HEAD
+=======
+  extensions: [webp]
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
 
 content:
   - name: works
@@ -8,6 +12,7 @@ content:
     type: collection
     path: src/content/works
     filename: "{slug}.md"
+<<<<<<< HEAD
 
     commit:
       templates:
@@ -32,8 +37,39 @@ content:
 
       - name: slug
         label: Project Slug
+=======
+
+    commit:
+      templates:
+        create: "feat(works): add project entry - {filename}"
+        update: "refactor(works): update project details - {filename}"
+        delete: "refactor(works): remove project entry - {filename}"
+        rename: "refactor(works): rename project file - {oldFilename} -> {newFilename}"
+
+    view:
+      primary: title
+      fields: [title, year, category, featured]
+      sort: [year, title]
+      default:
+        sort: year
+        order: desc
+
+    fields:
+      - name: title
+        label: Project Title
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
         type: string
         required: true
+        description: "Enter the project name as it should appear on the website."
+
+      - name: slug
+        label: Project Slug
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          message: "Use lowercase letters, numbers, and hyphens only."
+        description: "Used in the project URL. Avoid changing it after publication."
 
       - name: year
         label: Year Completed
@@ -42,6 +78,10 @@ content:
         options:
           min: 1900
           max: 2100
+<<<<<<< HEAD
+=======
+        description: "Enter the year the project was completed."
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
 
       - name: category
         label: Project Category
@@ -49,14 +89,20 @@ content:
         required: true
         options:
           values: [Residential, Commercial]
+<<<<<<< HEAD
+=======
+        description: "Choose the category that best describes this project."
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
 
       - name: description
         label: Project Description
         type: text
         required: true
+        description: "Write a concise/short summary of the project."
 
       - name: coverImage
         label: Cover Image
+<<<<<<< HEAD
         type: image
         required: true
 
@@ -65,19 +111,47 @@ content:
         type: image
         required: true
         options:
+=======
+        type: image
+        required: true
+        options:
+          unique: true
+          extensions: [webp]
+        description: "Choose the main image displayed for this project."
+
+      - name: images
+        label: Image Gallery
+        type: image
+        required: true
+        options:
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
           multiple:
             max: 10
             unique: true
             extensions: [webp]
+<<<<<<< HEAD
+=======
+        description: "Add up to 10 project images. Arrange them in the order you want them displayed."
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
 
       - name: featured
         label: Featured Project
         type: boolean
+<<<<<<< HEAD
+=======
+        description: "Enable this if the project should appear in the featured works section."
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)
 
 settings:
   commit:
     templates:
       create: "feat(content): create {path}"
+<<<<<<< HEAD
       update: "content: update {path}"
       delete: "content: delete {path}"
       rename: "content: rename {oldPath} -> {newPath}"
+=======
+      update: "refactor: update {path}"
+      delete: "refactor: delete {path}"
+      rename: "refactor: rename {oldPath} -> {newPath}"
+>>>>>>> c2f89df3 (fix: make current setup match to pagecms needs)

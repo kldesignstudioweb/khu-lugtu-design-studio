@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "slug": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Residential",
+        "Commercial"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "coverImage": {
+      "type": "string"
+    },
+    "images": {
+      "minItems": 1,
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "featured": {
+      "default": false,
+      "type": "boolean"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "slug",
+    "title",
+    "year",
+    "category",
+    "description",
+    "coverImage",
+    "images"
+  ]
+}

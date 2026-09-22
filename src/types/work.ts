@@ -1,8 +1,7 @@
 import type { ImageMetadata } from "astro";
 
 /** Canonical project categories. Extend as the studio grows. */
-export type WorkCategory =
-  "Residential" | "Commercial" | "Cultural" | "Interior";
+export type WorkCategory = "Residential" | "Commercial";
 
 /**
  * Raw, stored shape of a work. Images are stored as strings (paths)
