@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.yourprojectdomain.com/sitemap-index.xml

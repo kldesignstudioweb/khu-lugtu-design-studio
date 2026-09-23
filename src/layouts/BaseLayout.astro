@@ -6,6 +6,7 @@ import About from "@/sections/About.astro";
 import BackToTop from "@/components/BackToTop.astro";
 import { ClientRouter } from "astro:transitions";
 import Preloader from "@/components/Preloader.astro";
+import ContactOverlay from "@/components/ContactOverlay.astro";
 
 interface Props {
   title: string;
@@ -30,6 +31,7 @@ const { title, description } = Astro.props;
     <About />
     <slot />
     <BackToTop />
+    <ContactOverlay id="contact-overlay" />
   </body>
 </html>
 

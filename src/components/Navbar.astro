@@ -38,9 +38,13 @@ import logo from "@/images/logo.webp";
             Studio
           </button>
         </li>
-        <li class="group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 ease-out tracking-[0.3em]">
-          <a href="/">Contact</a>
-        </li>
+        <button
+          type="button"
+          data-contact-open
+          class="cursor-pointer bg-transparent border-none p-0 text-inherit font-inherit uppercase tracking-[0.3em]"
+        >
+          Contact
+        </button>
       </ul>
     </nav>
   </div>
@@ -85,7 +89,6 @@ import logo from "@/images/logo.webp";
       studioOverlay.classList.add("hidden");
       studioOverlay.classList.remove("flex");
       document.body.style.overflow = "";
-      studioToggle.focus();
     }
 
     function onOverlayClick(e: MouseEvent): void {
@@ -129,5 +132,15 @@ import logo from "@/images/logo.webp";
   document.addEventListener("astro:before-swap", () => {
     cleanup?.();
     cleanup = undefined;
+  });
+</script>
+<script>
+  import { openContactOverlay } from "../scripts/contactOverlay";
+
+  document.addEventListener("click", (e) => {
+    const trigger = (e.target as HTMLElement)?.closest("[data-contact-open]");
+    if (!trigger) return;
+    e.preventDefault();
+    openContactOverlay();
   });
 </script>

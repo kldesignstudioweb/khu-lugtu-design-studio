@@ -1,0 +1,1178 @@
+---
+// src/components/ContactOverlay.astro
+// Accessible, focus-trapped, scroll-locking multi-step project enquiry overlay.
+// Strict client-side validation with security-focused input hardening.
+
+interface Props {
+  /** Optional id so the trigger can reference it via aria-controls. */
+  id?: string;
+  /** Initial visibility. Usually false; open via the custom event below. */
+  open?: boolean;
+}
+
+const { id = "contact-overlay", open = false } = Astro.props;
+
+// Public API for openers (e.g. buttons anywhere on the site):
+//   document.dispatchEvent(new CustomEvent('contact-overlay:open'))
+//   document.dispatchEvent(new CustomEvent('contact-overlay:close'))
+// Optionally scoped to this instance via detail: { id: 'contact-overlay' }
+---
+
+<section
+  id={id}
+  data-contact-overlay
+  aria-hidden={open ? "false" : "true"}
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${id}-title`}
+  class="h-svh w-full fixed top-0 right-0 backdrop-blur-sm flex flex-col justify-end items-end z-50 opacity-0 invisible pointer-events-none transition-opacity duration-200 ease-out data-[state=open]:opacity-100 data-[state=open]:visible data-[state=open]:pointer-events-auto"
+  data-state={open ? "open" : "closed"}
+  tabindex="-1"
+>
+  <div
+    data-overlay-backdrop
+    class="absolute inset-0 bg-black/40"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    data-overlay-panel
+    class="relative h-full bg-black w-full lg:w-[40svw] p-4 text-sm overflow-y-auto overscroll-contain"
+  >
+    <div class="flex justify-between items-end mb-8">
+      <h2 id={`${id}-title`} class="uppercase">
+        Project Enquiry
+      </h2>
+      <button
+        type="button"
+        data-overlay-close
+        class="cursor-pointer"
+        aria-label="Close project enquiry form"
+      >
+        ( Close )
+      </button>
+    </div>
+
+    <p class="max-w-sm mb-16">
+      To get started, we ask that you provide some initial information about
+      your project to help us determine whether our studio is the right fit. Our
+      team will review the details and be in touch to discuss next steps within
+      5 business days.
+    </p>
+
+    <form data-overlay-form novalidate autocomplete="on">
+      <!-- Progress -->
+      <div
+        class="mb-8 flex items-center justify-between uppercase text-xs tracking-wider"
+        aria-live="polite"
+      >
+        <span data-step-indicator>Step 1 of 3</span>
+        <span class="opacity-60" data-step-label>
+          Personal Details
+        </span>
+      </div>
+
+      <!-- Step 1: Personal Details -->
+      <div data-step="1" class="[&[hidden]]:hidden">
+        <h3 class="uppercase border-b border-white/40 pb-2 mb-4">
+          Personal Details
+        </h3>
+
+        <fieldset class="space-y-6">
+          <div>
+            <label for={`${id}-fullName`} class="block mb-2">
+              Full Name *
+            </label>
+            <input
+              type="text"
+              id={`${id}-fullName`}
+              name="fullName"
+              required
+              minlength="2"
+              maxlength="80"
+              pattern="^[\p{L}\p{M}][\p{L}\p{M}'’.\-\s]*$"
+              autocomplete="name"
+              autocapitalize="words"
+              spellcheck="false"
+              inputmode="text"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-fullName`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-email`} class="block mb-2">
+              Email *
+            </label>
+            <input
+              type="email"
+              id={`${id}-email`}
+              name="email"
+              required
+              minlength="5"
+              maxlength="254"
+              pattern="^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$"
+              autocomplete="email"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              inputmode="email"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-email`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-phone`} class="block mb-2">
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              id={`${id}-phone`}
+              name="phone"
+              required
+              minlength="7"
+              maxlength="20"
+              pattern="^\+?[0-9][0-9\s\-()]{6,18}[0-9]$"
+              autocomplete="tel"
+              inputmode="tel"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-phone`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for={`${id}-gender`} class="block mb-2">
+                Gender *
+              </label>
+              <select
+                id={`${id}-gender`}
+                name="gender"
+                class="block bg-gray-400 text-black p-4 w-full"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+              <p
+                data-error-for={`${id}-gender`}
+                class="mt-1 text-xs text-red-400"
+                hidden
+              >
+              </p>
+            </div>
+
+            <div>
+              <label for={`${id}-civilStatus`} class="block mb-2">
+                Civil Status *
+              </label>
+              <select
+                id={`${id}-civilStatus`}
+                name="civilStatus"
+                class="block bg-gray-400 text-black p-4 w-full"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="other">Other</option>
+              </select>
+              <p
+                data-error-for={`${id}-civilStatus`}
+                class="mt-1 text-xs text-red-400"
+                hidden
+              >
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label for={`${id}-age`} class="block mb-2">
+              Age *
+            </label>
+            <input
+              type="number"
+              id={`${id}-age`}
+              name="age"
+              required
+              min="18"
+              max="120"
+              step="1"
+              inputmode="numeric"
+              autocomplete="off"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-age`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Step 2: Project Details -->
+      <div data-step="2" hidden>
+        <h3 class="uppercase border-b border-white/40 pb-2 mb-4">
+          Project Details
+        </h3>
+
+        <fieldset class="space-y-6">
+          <div>
+            <label for={`${id}-location`} class="block mb-2">
+              Where is the project located?
+            </label>
+            <input
+              type="text"
+              id={`${id}-location`}
+              name="location"
+              required
+              minlength="2"
+              maxlength="120"
+              pattern="^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N}'’.\-,#\s]*$"
+              autocomplete="address-level2"
+              autocapitalize="words"
+              spellcheck="false"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-location`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-size`} class="block mb-2">
+              How big is the lot area in sqm? *
+            </label>
+            <input
+              type="number"
+              id={`${id}-size`}
+              name="size"
+              required
+              min="1"
+              max="1000000"
+              step="1"
+              inputmode="numeric"
+              autocomplete="off"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-size`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-land`} class="block mb-2">
+              Do you currently own the land or property for this project? *
+            </label>
+            <select
+              id={`${id}-land`}
+              name="land"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Yes, I own it">Yes, I own it</option>
+              <option value="Yes, under a contract/lease">
+                Yes, under a contract/lease
+              </option>
+              <option value="No, I am still actively searching for a site.">
+                No, I am still actively searching for a site.
+              </option>
+            </select>
+            <p
+              data-error-for={`${id}-land`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-typeOfProject`} class="block mb-2">
+              What type of project are you planning? *
+            </label>
+            <select
+              id={`${id}-typeOfProject`}
+              name="typeOfProject"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Residential - Renovation">
+                Residential - Renovation
+              </option>
+              <option value="Commercial - Renovation">
+                Commercial - Renovation
+              </option>
+            </select>
+            <p
+              data-error-for={`${id}-typeOfProject`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-budget`} class="block mb-2">
+              What is your realistic, estimated target budget for the TOTAL
+              Construction Costs? *
+            </label>
+            <select
+              id={`${id}-budget`}
+              name="budget"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Under ₱5,000,000.00">Under ₱5,000,000.00</option>
+              <option value="₱5,000,000 – ₱10,000,000">
+                ₱5,000,000 – ₱10,000,000
+              </option>
+              <option value="₱10,000,000 – ₱20,000,000">
+                ₱10,000,000 – ₱20,000,000
+              </option>
+              <option value="₱20,000,000+">₱20,000,000+</option>
+            </select>
+            <p
+              data-error-for={`${id}-budget`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-investmentLevel`} class="block mb-2">
+              Kindly select the investment level aligned with your financial
+              expectations for the Architectural & Engineering Fees. *
+            </label>
+            <select
+              id={`${id}-investmentLevel`}
+              name="investmentLevel"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Under ₱50,000.00">Under ₱50,000.00</option>
+              <option value="₱50,000.00- ₱200,000.00">
+                ₱50,000.00- ₱200,000.00
+              </option>
+              <option value="₱200,000.00- ₱500,000.00">
+                ₱200,000.00- ₱500,000.00
+              </option>
+              <option value="₱500,000.00 +">₱500,000.00 +</option>
+            </select>
+            <p
+              data-error-for={`${id}-investmentLevel`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Step 3: Vision & Alignment -->
+      <div data-step="3" hidden>
+        <h3 class="uppercase border-b border-white/40 pb-2 mb-4">
+          Vision & Alignment
+        </h3>
+
+        <fieldset class="space-y-6">
+          <div>
+            <label for={`${id}-vision`} class="block mb-2">
+              What are the 3 most important goals for your new space? *
+            </label>
+            <input
+              type="text"
+              id={`${id}-vision`}
+              name="vision"
+              required
+              minlength="3"
+              maxlength="200"
+              pattern="^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N}'’.,;:!?&()\-\/\s]*$"
+              autocapitalize="sentences"
+              spellcheck="true"
+              class="block w-full p-4 bg-gray-400 text-black"
+            />
+            <p
+              data-error-for={`${id}-vision`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-referral`} class="block mb-2">
+              Why did you choose to reach out to our firm specifically? *
+            </label>
+            <select
+              id={`${id}-referral`}
+              name="referral"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="I love your specific design aesthetic and past projects.">
+                I love your specific design aesthetic and past projects.
+              </option>
+              <option value="You were highly recommended by someone I trust">
+                You were highly recommended by someone I trust
+              </option>
+              <option value="I am looking for a specialized expert to guide me through a complex build.">
+                I am looking for a specialized expert to guide me through a
+                complex build.
+              </option>
+              <option value="I am gathering quotes from multiple architects to compare rates.">
+                I am gathering quotes from multiple architects to compare rates.
+              </option>
+            </select>
+            <p
+              data-error-for={`${id}-referral`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+
+          <div>
+            <label for={`${id}-timeline`} class="block mb-2">
+              What is your target timeline to begin construction? *
+            </label>
+            <select
+              id={`${id}-timeline`}
+              name="timeline"
+              class="block bg-gray-400 text-black p-4 w-full"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Immediately (Within 3 months)">
+                Immediately (Within 3 months)
+              </option>
+              <option value="Within 6-12 months">Within 6-12 months</option>
+              <option value="Just planning ahead (1+ years out)">
+                Just planning ahead (1+ years out)
+              </option>
+            </select>
+            <p
+              data-error-for={`${id}-timeline`}
+              class="mt-1 text-xs text-red-400"
+              hidden
+            >
+            </p>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Honeypot: hidden from users, tempting to bots. Leave empty. -->
+      <div
+        aria-hidden="true"
+        class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+      >
+        <label for={`${id}-website`}>Website (leave blank)</label>
+        <input
+          type="text"
+          id={`${id}-website`}
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+          data-honeypot
+        />
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex justify-between items-center mt-16">
+        <button type="button" data-step-prev hidden class="cursor-pointer">
+          ( Back )
+        </button>
+        <button type="button" data-step-next class="ml-auto cursor-pointer">
+          ( Next )
+        </button>
+        <button
+          type="submit"
+          data-step-submit
+          hidden
+          class="ml-auto cursor-pointer"
+        >
+          ( Submit )
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  type OverlayEl = HTMLElement & { __contactOverlayInit?: boolean };
+
+  type FieldEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+  const STEP_LABELS: Record<number, string> = {
+    1: "Personal Details",
+    2: "Project Details",
+    3: "Vision & Alignment",
+  };
+  const TOTAL_STEPS = 3;
+
+  /**
+   * Global allow-lists per field name. Anything not in the list is
+   * stripped on input. This blocks paste-injection of control chars,
+   * zero-width chars, RTL overrides, and HTML/script fragments.
+   */
+  type SanitizeKind = "name" | "email" | "phone" | "number" | "text" | "multiline";
+
+  const FIELD_KIND: Record<string, SanitizeKind> = {
+    fullName: "name",
+    email: "email",
+    phone: "phone",
+    age: "number",
+    location: "text",
+    size: "number",
+    vision: "text",
+  };
+
+  // Allow-list regexes: keep ONLY these characters while the user types/pastes.
+  const ALLOW: Record<SanitizeKind, RegExp> = {
+    // Unicode letters, combining marks, apostrophes, periods, hyphens, spaces
+    name: /[^\p{L}\p{M}'’.\-\s]/gu,
+    // RFC-ish email charset
+    email: /[^A-Za-z0-9._%+\-@]/g,
+    // Phone: digits, +, -, (), space
+    phone: /[^0-9+\-()\s]/g,
+    // Digits only (for number inputs we sanitize to digits; browser handles min/max)
+    number: /[^0-9]/g,
+    // Generic single-line: letters, digits, common punctuation, no angle brackets or control chars
+    text: /[^\p{L}\p{M}\p{N}'’.,;:!?&()\-/#\s]/gu,
+    // Multi-line (unused here but available)
+    multiline: /[^\p{L}\p{M}\p{N}'’.,;:!?&()\-/#\s\n\r]/gu,
+  };
+
+  const MAX_LEN: Record<string, number> = {
+    fullName: 80,
+    email: 254,
+    phone: 20,
+    location: 120,
+    vision: 200,
+  };
+
+  function stripControlChars(value: string): string {
+    // Remove C0/C1 controls, zero-width, bidi overrides, BOM.
+    return value.replace(
+      /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g,
+      "",
+    );
+  }
+
+  function sanitizeField(field: FieldEl): void {
+    const kind = FIELD_KIND[field.name];
+    if (!kind) return;
+
+    let value = field.value;
+
+    // Strip dangerous invisible/control characters first.
+    const cleaned = stripControlChars(value);
+    if (cleaned !== value) {
+      value = cleaned;
+    }
+
+    // Apply allow-list.
+    const allow = ALLOW[kind];
+    const filtered = value.replace(allow, "");
+    if (filtered !== value) {
+      value = filtered;
+    }
+
+    // Enforce max length as a hard cap (in addition to the attribute).
+    const cap = MAX_LEN[field.name];
+    if (typeof cap === "number" && value.length > cap) {
+      value = value.slice(0, cap);
+    }
+
+    if (value !== field.value) {
+      const el = field as HTMLInputElement;
+      // Preserve caret roughly at end-of-edit rather than jumping to 0.
+      const start = el.selectionStart ?? value.length;
+      const delta = field.value.length - value.length;
+      el.value = value;
+      try {
+        const pos = Math.max(0, start - delta);
+        el.setSelectionRange(pos, pos);
+      } catch {
+        /* setSelectionRange not supported on some input types */
+      }
+    }
+  }
+
+  const FOCUSABLE_SELECTOR = [
+    "a[href]",
+    "button:not([disabled]):not([hidden])",
+    'input:not([disabled]):not([type="hidden"])',
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(",");
+
+  function getFocusable(root: HTMLElement): HTMLElement[] {
+    return Array.from(
+      root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    ).filter((el) => {
+      if (el.hasAttribute("hidden")) return false;
+      if (el.closest("[hidden]")) return false;
+      if (el.closest("[aria-hidden='true']")) return false;
+      return el.offsetParent !== null || el === document.activeElement;
+    });
+  }
+
+  /**
+   * Produce a short, human-readable error message from a field's
+   * ValidityState.
+   */
+  function getFieldError(field: FieldEl): string {
+    const v = field.validity;
+    const label = (field.labels?.[0]?.textContent ?? field.name ?? "This field")
+      .replace(/\s*\*\s*$/, "")
+      .trim();
+
+    if (v.valueMissing) {
+      if (field instanceof HTMLSelectElement)
+        return `Please select a ${label.toLowerCase()}.`;
+      return `${label} is required.`;
+    }
+    if (v.typeMismatch) {
+      if (field.type === "email") return "Please enter a valid email address.";
+      return `${label} is not valid.`;
+    }
+    if (v.patternMismatch) {
+      if (field.name === "fullName")
+        return "Please use letters, spaces, hyphens, apostrophes, or periods only.";
+      if (field.name === "email")
+        return "Please enter a valid email address (e.g. name@example.com).";
+      if (field.name === "phone")
+        return "Please enter a valid phone number (digits, +, -, spaces, parentheses).";
+      if (field.name === "location")
+        return "Please use letters, numbers, spaces, commas, and hyphens only.";
+      if (field.name === "vision")
+        return "Please use plain text without special or control characters.";
+      return `${label} is not in the expected format.`;
+    }
+    if (v.tooShort) {
+      const min = field.getAttribute("minlength") ?? "";
+      return `${label} must be at least ${min} characters.`;
+    }
+    if (v.tooLong) {
+      const max = field.getAttribute("maxlength") ?? "";
+      return `${label} must be at most ${max} characters.`;
+    }
+    if (v.rangeUnderflow) {
+      const min = field.getAttribute("min") ?? "";
+      return `${label} must be at least ${min}.`;
+    }
+    if (v.rangeOverflow) {
+      const max = field.getAttribute("max") ?? "";
+      return `${label} must be at most ${max}.`;
+    }
+    if (v.stepMismatch) {
+      return `${label} must be a whole number.`;
+    }
+    if (v.badInput) {
+      return `Please enter a valid value for ${label.toLowerCase()}.`;
+    }
+    return field.validationMessage || `${label} is invalid.`;
+  }
+
+  class ContactOverlay {
+    private root: OverlayEl;
+    private panel: HTMLElement;
+    private form: HTMLFormElement;
+    private backdrop: HTMLElement;
+    private closeBtn: HTMLButtonElement;
+    private prevBtn: HTMLButtonElement;
+    private nextBtn: HTMLButtonElement;
+    private submitBtn: HTMLButtonElement;
+    private stepEls: HTMLElement[];
+    private stepIndicator: HTMLElement;
+    private stepLabel: HTMLElement;
+
+    private currentStep = 1;
+    private lastFocused: HTMLElement | null = null;
+    private scrollLockY = 0;
+    private boundKeydown = (e: KeyboardEvent) => this.onKeydown(e);
+    private boundOpen = (e: Event) => {
+      const detail = (e as CustomEvent<{ id?: string }>).detail;
+      if (!detail?.id || detail.id === this.root.id) this.open();
+    };
+    private boundClose = (e: Event) => {
+      const detail = (e as CustomEvent<{ id?: string }>).detail;
+      if (!detail?.id || detail.id === this.root.id) this.close();
+    };
+
+    constructor(root: OverlayEl) {
+      this.root = root;
+      this.panel = root.querySelector<HTMLElement>("[data-overlay-panel]")!;
+      this.form = root.querySelector<HTMLFormElement>("[data-overlay-form]")!;
+      this.backdrop = root.querySelector<HTMLElement>(
+        "[data-overlay-backdrop]",
+      )!;
+      this.closeBtn = root.querySelector<HTMLButtonElement>(
+        "[data-overlay-close]",
+      )!;
+      this.prevBtn = root.querySelector<HTMLButtonElement>("[data-step-prev]")!;
+      this.nextBtn = root.querySelector<HTMLButtonElement>("[data-step-next]")!;
+      this.submitBtn =
+        root.querySelector<HTMLButtonElement>("[data-step-submit]")!;
+      this.stepEls = Array.from(
+        root.querySelectorAll<HTMLElement>("[data-step]"),
+      );
+      this.stepIndicator = root.querySelector<HTMLElement>(
+        "[data-step-indicator]",
+      )!;
+      this.stepLabel = root.querySelector<HTMLElement>("[data-step-label]")!;
+    }
+
+    init() {
+      if (this.root.__contactOverlayInit) return;
+      this.root.__contactOverlayInit = true;
+
+      this.closeBtn.addEventListener("click", () => this.close());
+      this.backdrop.addEventListener("click", () => this.close());
+      this.nextBtn.addEventListener("click", () => this.goNext());
+      this.prevBtn.addEventListener("click", () => this.goPrev());
+      this.form.addEventListener("submit", (e) => this.onSubmit(e));
+
+      // ---- Input hardening: sanitize on every keystroke/paste. ----
+      this.form.addEventListener(
+        "beforeinput",
+        (e) => {
+          const target = e.target as HTMLElement | null;
+          if (
+            target instanceof HTMLInputElement &&
+            typeof e.data === "string" &&
+            e.data.length > 0
+          ) {
+            const kind = FIELD_KIND[target.name];
+            if (kind) {
+              const allow = ALLOW[kind];
+              const test = e.data.replace(allow, "");
+              if (test !== e.data) {
+                // Block paste/typing of disallowed characters entirely.
+                e.preventDefault();
+                // Splice in only the allowed characters at the caret.
+                const el = target;
+                const start = el.selectionStart ?? el.value.length;
+                const end = el.selectionEnd ?? el.value.length;
+                const insert = e.data.replace(allow, "");
+                const next =
+                  el.value.slice(0, start) + insert + el.value.slice(end);
+                const cap = MAX_LEN[el.name];
+                const capped =
+                  typeof cap === "number" ? next.slice(0, cap) : next;
+                el.value = capped;
+                const pos = start + insert.length;
+                try {
+                  el.setSelectionRange(pos, pos);
+                } catch {
+                  /* noop */
+                }
+              }
+            }
+          }
+        },
+        { capture: true },
+      );
+
+      // Fallback for browsers without beforeinput, plus enforcement on paste.
+      this.form.addEventListener("input", (e) => {
+        const target = e.target as HTMLElement | null;
+        if (!(target instanceof HTMLInputElement)) return;
+        sanitizeField(target);
+        // Live-clear an existing error once the field becomes valid.
+        if (this.hasError(target) && target.checkValidity()) {
+          this.clearFieldError(target);
+        }
+      });
+
+      this.form.addEventListener("change", (e) => {
+        const target = e.target as HTMLElement | null;
+        if (!(target instanceof HTMLSelectElement)) return;
+        if (target.checkValidity()) this.clearFieldError(target);
+      });
+
+      // Blur validation: surface an error when the user leaves a field.
+      this.form.addEventListener(
+        "blur",
+        (e) => {
+          const target = e.target as HTMLElement | null;
+          if (
+            target instanceof HTMLInputElement ||
+            target instanceof HTMLSelectElement ||
+            target instanceof HTMLTextAreaElement
+          ) {
+            if (!target.checkValidity()) {
+              this.showFieldError(target);
+            }
+          }
+        },
+        true,
+      );
+
+      // Block invalid numeric keystrokes (e, E, +, -) on number inputs.
+      this.form.addEventListener(
+        "keydown",
+        (e) => {
+          const target = e.target as HTMLElement | null;
+          if (
+            target instanceof HTMLInputElement &&
+            target.type === "number"
+          ) {
+            const blocked = ["e", "E", "+", "-"];
+            if (blocked.includes(e.key)) {
+              e.preventDefault();
+            }
+          }
+        },
+        { capture: true },
+      );
+
+      // Prevent wheel-driven value change on number inputs (accessibility / data-integrity).
+      this.form.addEventListener(
+        "wheel",
+        (e) => {
+          const target = e.target as HTMLElement | null;
+          if (
+            target instanceof HTMLInputElement &&
+            target.type === "number" &&
+            document.activeElement === target
+          ) {
+            target.blur();
+          }
+        },
+        { passive: true },
+      );
+
+      document.addEventListener("keydown", this.boundKeydown);
+      document.addEventListener("contact-overlay:open", this.boundOpen);
+      document.addEventListener("contact-overlay:close", this.boundClose);
+
+      this.renderStep();
+    }
+
+    destroy() {
+      document.removeEventListener("keydown", this.boundKeydown);
+      document.removeEventListener("contact-overlay:open", this.boundOpen);
+      document.removeEventListener("contact-overlay:close", this.boundClose);
+      this.unlockScroll();
+    }
+
+    isOpen() {
+      return this.root.dataset.state === "open";
+    }
+
+    open() {
+      if (this.isOpen()) return;
+      this.lastFocused = (document.activeElement as HTMLElement) ?? null;
+      this.root.dataset.state = "open";
+      this.root.setAttribute("aria-hidden", "false");
+      this.lockScroll();
+      requestAnimationFrame(() => {
+        const focusables = getFocusable(this.panel);
+        (focusables[0] ?? this.panel).focus();
+      });
+      this.root.dispatchEvent(
+        new CustomEvent("contact-overlay:opened", { bubbles: true }),
+      );
+    }
+
+    close() {
+      if (!this.isOpen()) return;
+      this.root.dataset.state = "closed";
+      this.root.setAttribute("aria-hidden", "true");
+      this.unlockScroll();
+      if (this.lastFocused && document.contains(this.lastFocused)) {
+        this.lastFocused.focus();
+      }
+      this.root.dispatchEvent(
+        new CustomEvent("contact-overlay:closed", { bubbles: true }),
+      );
+    }
+
+    private lockScroll() {
+      const body = document.body;
+      this.scrollLockY = window.scrollY;
+      body.style.position = "fixed";
+      body.style.top = `-${this.scrollLockY}px`;
+      body.style.left = "0";
+      body.style.right = "0";
+      body.style.width = "100%";
+      body.style.overflow = "hidden";
+    }
+
+    private unlockScroll() {
+      const body = document.body;
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      body.style.overflow = "";
+      window.scrollTo(0, this.scrollLockY);
+    }
+
+    private onKeydown(e: KeyboardEvent) {
+      if (!this.isOpen()) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        this.close();
+        return;
+      }
+
+      if (e.key === "Tab") {
+        const focusables = getFocusable(this.panel);
+        if (focusables.length === 0) {
+          e.preventDefault();
+          this.panel.focus();
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (e.shiftKey) {
+          if (active === first || !this.panel.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last || !this.panel.contains(active)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    }
+
+    private renderStep() {
+      this.stepEls.forEach((el) => {
+        const step = Number(el.dataset.step);
+        el.hidden = step !== this.currentStep;
+      });
+
+      this.prevBtn.hidden = this.currentStep === 1;
+      this.nextBtn.hidden = this.currentStep === TOTAL_STEPS;
+      this.submitBtn.hidden = this.currentStep !== TOTAL_STEPS;
+
+      this.stepIndicator.textContent = `Step ${this.currentStep} of ${TOTAL_STEPS}`;
+      this.stepLabel.textContent = STEP_LABELS[this.currentStep] ?? "";
+    }
+
+    /* ---------- Validation helpers ---------- */
+
+    private errorElFor(field: FieldEl): HTMLElement | null {
+      if (!field.id) return null;
+      return this.form.querySelector<HTMLElement>(
+        `[data-error-for="${CSS.escape(field.id)}"]`,
+      );
+    }
+
+    private hasError(field: FieldEl): boolean {
+      const el = this.errorElFor(field);
+      return !!el && !el.hidden;
+    }
+
+    private showFieldError(field: FieldEl) {
+      const el = this.errorElFor(field);
+      if (!el) return;
+      el.textContent = getFieldError(field);
+      el.hidden = false;
+      field.setAttribute("aria-invalid", "true");
+      if (field.id) {
+        el.id = `${field.id}-error`;
+        field.setAttribute("aria-describedby", el.id);
+      }
+    }
+
+    private clearFieldError(field: FieldEl) {
+      const el = this.errorElFor(field);
+      if (el) {
+        el.hidden = true;
+        el.textContent = "";
+      }
+      field.removeAttribute("aria-invalid");
+      field.removeAttribute("aria-describedby");
+    }
+
+    /** Validate every field in the current step. Returns true if all valid. */
+    private validateCurrentStep(): boolean {
+      const current = this.stepEls.find(
+        (el) => Number(el.dataset.step) === this.currentStep,
+      );
+      if (!current) return true;
+
+      const fields = Array.from(
+        current.querySelectorAll<FieldEl>("input, select, textarea"),
+      ).filter((f) => {
+        if (f.hasAttribute("data-honeypot")) return false;
+        if ((f as HTMLInputElement).disabled) return false;
+        return true;
+      });
+
+      let firstInvalid: FieldEl | null = null;
+
+      for (const field of fields) {
+        // Sanitize just before validating so we never validate dirty input.
+        if (field instanceof HTMLInputElement) sanitizeField(field);
+        if (field.checkValidity()) {
+          this.clearFieldError(field);
+        } else {
+          this.showFieldError(field);
+          if (!firstInvalid) firstInvalid = field;
+        }
+      }
+
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return false;
+      }
+      return true;
+    }
+
+    private goNext() {
+      if (!this.validateCurrentStep()) return;
+      if (this.currentStep < TOTAL_STEPS) {
+        this.currentStep += 1;
+        this.renderStep();
+        this.focusFirstField();
+      }
+    }
+
+    private goPrev() {
+      if (this.currentStep > 1) {
+        this.currentStep -= 1;
+        this.renderStep();
+        this.focusFirstField();
+      }
+    }
+
+    private focusFirstField() {
+      requestAnimationFrame(() => {
+        const current = this.stepEls.find(
+          (el) => Number(el.dataset.step) === this.currentStep,
+        );
+        if (!current) return;
+        const first = current.querySelector<HTMLElement>(
+          "input, select, textarea, button",
+        );
+        first?.focus();
+      });
+    }
+
+    private onSubmit(e: SubmitEvent) {
+      e.preventDefault();
+
+      // Honeypot check — if filled, silently drop the submission.
+      const honeypot = this.form.querySelector<HTMLInputElement>(
+        "[data-honeypot]",
+      );
+      if (honeypot && honeypot.value.trim() !== "") {
+        // Pretend success to the bot; do nothing.
+        return;
+      }
+
+      // Sanitize every field across all steps before validation.
+      this.form
+        .querySelectorAll<HTMLInputElement>("input:not([type=hidden])")
+        .forEach((input) => {
+          if (input.hasAttribute("data-honeypot")) return;
+          sanitizeField(input);
+        });
+
+      // Re-validate every step before submitting.
+      for (let step = 1; step <= TOTAL_STEPS; step++) {
+        const saved = this.currentStep;
+        this.currentStep = step;
+        const ok = this.validateCurrentStep();
+        this.currentStep = saved;
+        if (!ok) {
+          this.currentStep = step;
+          this.renderStep();
+          this.focusFirstField();
+          return;
+        }
+      }
+
+      // Build a normalized FormData. Numbers are coerced; strings trimmed.
+      const fd = new FormData();
+      this.form
+        .querySelectorAll<FieldEl>("input, select, textarea")
+        .forEach((field) => {
+          if (!field.name) return;
+          if (field.hasAttribute("data-honeypot")) return;
+
+          let value = field.value.trim();
+
+          if (field.type === "number") {
+            const n = Number(value);
+            value = Number.isFinite(n) ? String(n) : "";
+          }
+
+          // Defense-in-depth: strip residual control chars one more time.
+          value = stripControlChars(value);
+
+          fd.set(field.name, value);
+        });
+
+      this.root.dispatchEvent(
+        new CustomEvent("contact-overlay:submit", {
+          bubbles: true,
+          detail: { formData: fd },
+        }),
+      );
+    }
+  }
+
+  function initOverlays() {
+    document
+      .querySelectorAll<OverlayEl>("[data-contact-overlay]")
+      .forEach((el) => {
+        if (el.__contactOverlayInit) return;
+        const instance = new ContactOverlay(el);
+        instance.init();
+        (
+          el as OverlayEl & { __contactOverlay?: ContactOverlay }
+        ).__contactOverlay = instance;
+      });
+  }
+
+  initOverlays();
+  document.addEventListener("astro:page-load", initOverlays);
+  document.addEventListener("astro:after-swap", initOverlays);
+</script>
