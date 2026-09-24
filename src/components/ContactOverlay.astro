@@ -63,13 +63,17 @@ const { id = "contact-overlay", open = false } = Astro.props;
     <form data-overlay-form novalidate autocomplete="on">
       <!-- Progress -->
       <div
-        class="mb-8 flex items-center justify-between uppercase text-xs tracking-wider"
-        aria-live="polite"
+        class="absolute top-0 left-0 w-full h-0.5 bg-white/20"
+        role="progressbar"
+        aria-label="Form progress"
+        aria-valuemin="1"
+        aria-valuemax="3"
+        aria-valuenow="1"
       >
-        <span data-step-indicator>Step 1 of 3</span>
-        <span class="opacity-60" data-step-label>
-          Personal Details
-        </span>
+        <div
+          data-progress-bar
+          class="h-full w-1/3 bg-white transition-[width] duration-300 ease-out"
+        ></div>
       </div>
 
       <!-- Step 1: Personal Details -->
@@ -101,8 +105,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-fullName`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -128,8 +131,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-email`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -152,8 +154,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-phone`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -175,8 +176,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
                 data-error-for={`${id}-gender`}
                 class="mt-1 text-xs text-red-400"
                 hidden
-              >
-              </p>
+              ></p>
             </div>
 
             <div>
@@ -199,8 +199,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
                 data-error-for={`${id}-civilStatus`}
                 class="mt-1 text-xs text-red-400"
                 hidden
-              >
-              </p>
+              ></p>
             </div>
           </div>
 
@@ -224,8 +223,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-age`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
         </fieldset>
       </div>
@@ -258,8 +256,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-location`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -282,8 +279,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-size`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -309,8 +305,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-land`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -337,8 +332,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-typeOfProject`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -366,8 +360,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-budget`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -395,8 +388,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-investmentLevel`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
         </fieldset>
       </div>
@@ -428,8 +420,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-vision`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -461,8 +452,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-referral`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
 
           <div>
@@ -488,8 +478,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               data-error-for={`${id}-timeline`}
               class="mt-1 text-xs text-red-400"
               hidden
-            >
-            </p>
+            ></p>
           </div>
         </fieldset>
       </div>
@@ -549,12 +538,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
    * Anything not in the list is stripped on input.
    */
   type SanitizeKind =
-    | "name"
-    | "email"
-    | "phone"
-    | "number"
-    | "text"
-    | "multiline";
+    "name" | "email" | "phone" | "number" | "text" | "multiline";
 
   const FIELD_KIND: Record<string, SanitizeKind> = {
     fullName: "name",
@@ -657,11 +641,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
   function getFieldError(field: FieldEl): string {
     const v = field.validity;
 
-    const label = (
-      field.labels?.[0]?.textContent ??
-      field.name ??
-      "This field"
-    )
+    const label = (field.labels?.[0]?.textContent ?? field.name ?? "This field")
       .replace(/\s*\*\s*$/, "")
       .trim();
 
@@ -750,9 +730,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private nextBtn: HTMLButtonElement;
     private submitBtn: HTMLButtonElement;
     private stepEls: HTMLElement[];
-    private stepIndicator: HTMLElement;
-    private stepLabel: HTMLElement;
-
+    private progressBar: HTMLElement;
     private currentStep = 1;
     private lastFocused: HTMLElement | null = null;
 
@@ -801,13 +779,9 @@ const { id = "contact-overlay", open = false } = Astro.props;
     constructor(root: OverlayEl) {
       this.root = root;
 
-      this.panel = root.querySelector<HTMLElement>(
-        "[data-overlay-panel]",
-      )!;
+      this.panel = root.querySelector<HTMLElement>("[data-overlay-panel]")!;
 
-      this.form = root.querySelector<HTMLFormElement>(
-        "[data-overlay-form]",
-      )!;
+      this.form = root.querySelector<HTMLFormElement>("[data-overlay-form]")!;
 
       this.backdrop = root.querySelector<HTMLElement>(
         "[data-overlay-backdrop]",
@@ -817,28 +791,19 @@ const { id = "contact-overlay", open = false } = Astro.props;
         "[data-overlay-close]",
       )!;
 
-      this.prevBtn = root.querySelector<HTMLButtonElement>(
-        "[data-step-prev]",
-      )!;
+      this.prevBtn = root.querySelector<HTMLButtonElement>("[data-step-prev]")!;
 
-      this.nextBtn = root.querySelector<HTMLButtonElement>(
-        "[data-step-next]",
-      )!;
+      this.nextBtn = root.querySelector<HTMLButtonElement>("[data-step-next]")!;
 
-      this.submitBtn = root.querySelector<HTMLButtonElement>(
-        "[data-step-submit]",
-      )!;
+      this.submitBtn =
+        root.querySelector<HTMLButtonElement>("[data-step-submit]")!;
 
       this.stepEls = Array.from(
         root.querySelectorAll<HTMLElement>("[data-step]"),
       );
 
-      this.stepIndicator = root.querySelector<HTMLElement>(
-        "[data-step-indicator]",
-      )!;
-
-      this.stepLabel = root.querySelector<HTMLElement>(
-        "[data-step-label]",
+      this.progressBar = root.querySelector<HTMLElement>(
+        "[data-progress-bar]",
       )!;
     }
 
@@ -882,25 +847,19 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
                 const el = target;
 
-                const start =
-                  el.selectionStart ?? el.value.length;
+                const start = el.selectionStart ?? el.value.length;
 
-                const end =
-                  el.selectionEnd ?? el.value.length;
+                const end = el.selectionEnd ?? el.value.length;
 
                 const insert = e.data.replace(allow, "");
 
                 const next =
-                  el.value.slice(0, start) +
-                  insert +
-                  el.value.slice(end);
+                  el.value.slice(0, start) + insert + el.value.slice(end);
 
                 const cap = MAX_LEN[el.name];
 
                 const capped =
-                  typeof cap === "number"
-                    ? next.slice(0, cap)
-                    : next;
+                  typeof cap === "number" ? next.slice(0, cap) : next;
 
                 el.value = capped;
 
@@ -973,10 +932,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
         (e) => {
           const target = e.target as HTMLElement | null;
 
-          if (
-            target instanceof HTMLInputElement &&
-            target.type === "number"
-          ) {
+          if (target instanceof HTMLInputElement && target.type === "number") {
             const blocked = ["e", "E", "+", "-"];
 
             if (blocked.includes(e.key)) {
@@ -1003,49 +959,27 @@ const { id = "contact-overlay", open = false } = Astro.props;
       // Global overlay events
       // ------------------------------------------------------------
 
-      document.addEventListener(
-        "keydown",
-        this.boundKeydown,
-      );
+      document.addEventListener("keydown", this.boundKeydown);
 
-      document.addEventListener(
-        "contact-overlay:open",
-        this.boundOpen,
-      );
+      document.addEventListener("contact-overlay:open", this.boundOpen);
 
-      document.addEventListener(
-        "contact-overlay:close",
-        this.boundClose,
-      );
+      document.addEventListener("contact-overlay:close", this.boundClose);
 
       this.renderStep();
     }
 
     destroy() {
-      document.removeEventListener(
-        "keydown",
-        this.boundKeydown,
-      );
+      document.removeEventListener("keydown", this.boundKeydown);
 
       /**
        * The capture/passive options don't need to match for removal
        * except for capture, which must remain true.
        */
-      document.removeEventListener(
-        "wheel",
-        this.boundWheel,
-        true,
-      );
+      document.removeEventListener("wheel", this.boundWheel, true);
 
-      document.removeEventListener(
-        "contact-overlay:open",
-        this.boundOpen,
-      );
+      document.removeEventListener("contact-overlay:open", this.boundOpen);
 
-      document.removeEventListener(
-        "contact-overlay:close",
-        this.boundClose,
-      );
+      document.removeEventListener("contact-overlay:close", this.boundClose);
 
       this.unlockScroll();
     }
@@ -1088,10 +1022,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       this.unlockScroll();
 
-      if (
-        this.lastFocused &&
-        document.contains(this.lastFocused)
-      ) {
+      if (this.lastFocused && document.contains(this.lastFocused)) {
         this.lastFocused.focus();
       }
 
@@ -1176,9 +1107,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
        */
       if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
         deltaY *= 16;
-      } else if (
-        e.deltaMode === WheelEvent.DOM_DELTA_PAGE
-      ) {
+      } else if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
         deltaY *= this.panel.clientHeight;
       }
 
@@ -1204,25 +1133,17 @@ const { id = "contact-overlay", open = false } = Astro.props;
         }
 
         const first = focusables[0];
-        const last =
-          focusables[focusables.length - 1];
+        const last = focusables[focusables.length - 1];
 
-        const active =
-          document.activeElement as HTMLElement | null;
+        const active = document.activeElement as HTMLElement | null;
 
         if (e.shiftKey) {
-          if (
-            active === first ||
-            !this.panel.contains(active)
-          ) {
+          if (active === first || !this.panel.contains(active)) {
             e.preventDefault();
             last.focus();
           }
         } else {
-          if (
-            active === last ||
-            !this.panel.contains(active)
-          ) {
+          if (active === last || !this.panel.contains(active)) {
             e.preventDefault();
             first.focus();
           }
@@ -1239,26 +1160,24 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       this.prevBtn.hidden = this.currentStep === 1;
 
-      this.nextBtn.hidden =
-        this.currentStep === TOTAL_STEPS;
+      this.nextBtn.hidden = this.currentStep === TOTAL_STEPS;
 
-      this.submitBtn.hidden =
-        this.currentStep !== TOTAL_STEPS;
+      this.submitBtn.hidden = this.currentStep !== TOTAL_STEPS;
 
-      this.stepIndicator.textContent =
-        `Step ${this.currentStep} of ${TOTAL_STEPS}`;
+      const progress = (this.currentStep / TOTAL_STEPS) * 100;
 
-      this.stepLabel.textContent =
-        STEP_LABELS[this.currentStep] ?? "";
+      this.progressBar.style.width = `${progress}%`;
+
+      this.root
+        .querySelector<HTMLElement>("[role='progressbar']")
+        ?.setAttribute("aria-valuenow", String(this.currentStep));
     }
 
     // --------------------------------------------------------------
     // Validation helpers
     // --------------------------------------------------------------
 
-    private errorElFor(
-      field: FieldEl,
-    ): HTMLElement | null {
+    private errorElFor(field: FieldEl): HTMLElement | null {
       if (!field.id) return null;
 
       return this.form.querySelector<HTMLElement>(
@@ -1285,10 +1204,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
       if (field.id) {
         el.id = `${field.id}-error`;
 
-        field.setAttribute(
-          "aria-describedby",
-          el.id,
-        );
+        field.setAttribute("aria-describedby", el.id);
       }
     }
 
@@ -1309,24 +1225,19 @@ const { id = "contact-overlay", open = false } = Astro.props;
      */
     private validateCurrentStep(): boolean {
       const current = this.stepEls.find(
-        (el) =>
-          Number(el.dataset.step) === this.currentStep,
+        (el) => Number(el.dataset.step) === this.currentStep,
       );
 
       if (!current) return true;
 
       const fields = Array.from(
-        current.querySelectorAll<FieldEl>(
-          "input, select, textarea",
-        ),
+        current.querySelectorAll<FieldEl>("input, select, textarea"),
       ).filter((field) => {
         if (field.hasAttribute("data-honeypot")) {
           return false;
         }
 
-        if (
-          (field as HTMLInputElement).disabled
-        ) {
+        if ((field as HTMLInputElement).disabled) {
           return false;
         }
 
@@ -1382,17 +1293,14 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private focusFirstField() {
       requestAnimationFrame(() => {
         const current = this.stepEls.find(
-          (el) =>
-            Number(el.dataset.step) ===
-            this.currentStep,
+          (el) => Number(el.dataset.step) === this.currentStep,
         );
 
         if (!current) return;
 
-        const first =
-          current.querySelector<HTMLElement>(
-            "input, select, textarea, button",
-          );
+        const first = current.querySelector<HTMLElement>(
+          "input, select, textarea, button",
+        );
 
         first?.focus();
       });
@@ -1406,14 +1314,9 @@ const { id = "contact-overlay", open = false } = Astro.props;
       // ------------------------------------------------------------
 
       const honeypot =
-        this.form.querySelector<HTMLInputElement>(
-          "[data-honeypot]",
-        );
+        this.form.querySelector<HTMLInputElement>("[data-honeypot]");
 
-      if (
-        honeypot &&
-        honeypot.value.trim() !== ""
-      ) {
+      if (honeypot && honeypot.value.trim() !== "") {
         // Pretend success to automated submissions.
         return;
       }
@@ -1423,13 +1326,9 @@ const { id = "contact-overlay", open = false } = Astro.props;
       // ------------------------------------------------------------
 
       this.form
-        .querySelectorAll<HTMLInputElement>(
-          "input:not([type=hidden])",
-        )
+        .querySelectorAll<HTMLInputElement>("input:not([type=hidden])")
         .forEach((input) => {
-          if (
-            input.hasAttribute("data-honeypot")
-          ) {
+          if (input.hasAttribute("data-honeypot")) {
             return;
           }
 
@@ -1440,17 +1339,12 @@ const { id = "contact-overlay", open = false } = Astro.props;
       // Validate every step
       // ------------------------------------------------------------
 
-      for (
-        let step = 1;
-        step <= TOTAL_STEPS;
-        step++
-      ) {
+      for (let step = 1; step <= TOTAL_STEPS; step++) {
         const saved = this.currentStep;
 
         this.currentStep = step;
 
-        const ok =
-          this.validateCurrentStep();
+        const ok = this.validateCurrentStep();
 
         this.currentStep = saved;
 
@@ -1471,15 +1365,11 @@ const { id = "contact-overlay", open = false } = Astro.props;
       const fd = new FormData();
 
       this.form
-        .querySelectorAll<FieldEl>(
-          "input, select, textarea",
-        )
+        .querySelectorAll<FieldEl>("input, select, textarea")
         .forEach((field) => {
           if (!field.name) return;
 
-          if (
-            field.hasAttribute("data-honeypot")
-          ) {
+          if (field.hasAttribute("data-honeypot")) {
             return;
           }
 
@@ -1488,9 +1378,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
           if (field.type === "number") {
             const numberValue = Number(value);
 
-            value = Number.isFinite(numberValue)
-              ? String(numberValue)
-              : "";
+            value = Number.isFinite(numberValue) ? String(numberValue) : "";
           }
 
           value = stripControlChars(value);
@@ -1503,15 +1391,12 @@ const { id = "contact-overlay", open = false } = Astro.props;
       // ------------------------------------------------------------
 
       this.root.dispatchEvent(
-        new CustomEvent(
-          "contact-overlay:submit",
-          {
-            bubbles: true,
-            detail: {
-              formData: fd,
-            },
+        new CustomEvent("contact-overlay:submit", {
+          bubbles: true,
+          detail: {
+            formData: fd,
           },
-        ),
+        }),
       );
     }
   }
@@ -1522,9 +1407,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   function initOverlays() {
     document
-      .querySelectorAll<OverlayEl>(
-        "[data-contact-overlay]",
-      )
+      .querySelectorAll<OverlayEl>("[data-contact-overlay]")
       .forEach((el) => {
         if (el.__contactOverlayInit) return;
 
@@ -1542,13 +1425,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   initOverlays();
 
-  document.addEventListener(
-    "astro:page-load",
-    initOverlays,
-  );
+  document.addEventListener("astro:page-load", initOverlays);
 
-  document.addEventListener(
-    "astro:after-swap",
-    initOverlays,
-  );
+  document.addEventListener("astro:after-swap", initOverlays);
 </script>
