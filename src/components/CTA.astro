@@ -1,22 +1,27 @@
 ---
 import { Image } from "astro:assets";
 
-import ctaImg from "@/images/go-residence/go-residence-3.webp"
+import ctaImg from "@/images/go-residence/go-residence-3.webp";
 ---
 
 <section class="h-svh relative m-2">
-    <Image
-        src={ctaImg}
-        alt="go-residence-living-room"
-        loading="lazy"
-        class="low-brightness"
-    />
+  <Image
+    src={ctaImg}
+    alt="go-residence-living-room"
+    loading="lazy"
+    class="low-brightness"
+  />
 
-    <div class="flex flex-col justify-between items-center size-full absolute top-0 py-4">
-        <h2>Get in touch</h2>
-        <p class="text-xl! max-w-lg text-center leading-none tracking-tight">
-            Let's build your dream home
-        </p>
-        <a href="">( Book a consultation )</a>
-    </div>
+  <div class="flex flex-col justify-between items-center size-full absolute top-0 py-4">
+    <h2>Get in touch</h2>
+    <button
+      data-contact-open
+      class="text-xl! max-w-lg text-center leading-none tracking-tight cursor-pointer"
+    >
+      Let's build your dream home
+    </button>
+    <button type="button" data-contact-open class="cursor-pointer">
+      ( Book a consultation )
+    </button>
+  </div>
 </section>

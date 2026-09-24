@@ -37,7 +37,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   <div
     data-overlay-panel
-    class="relative h-full bg-black w-full lg:w-[40svw] p-4 text-sm overflow-y-auto overscroll-contain"
+    class="relative h-full bg-black w-full lg:w-[40svw] p-4 text-sm overflow-y-auto overscroll-contain touch-pan-y"
   >
     <div class="flex justify-between items-end mb-8">
       <h2 id={`${id}-title`} class="uppercase">
@@ -739,6 +739,11 @@ const { id = "contact-overlay", open = false } = Astro.props;
      */
     private scrollLockY = 0;
 
+    private scrollStyles: {
+      htmlOverflow: string;
+      bodyOverflow: string;
+    } | null = null;
+
     /**
      * Previous inline body styles.
      * This prevents the overlay from destroying styles owned by
@@ -996,10 +1001,10 @@ const { id = "contact-overlay", open = false } = Astro.props;
           ? document.activeElement
           : null;
 
+      this.lockScroll();
+
       this.root.dataset.state = "open";
       this.root.setAttribute("aria-hidden", "false");
-
-      this.lockScroll();
 
       requestAnimationFrame(() => {
         const focusables = getFocusable(this.panel);
@@ -1040,24 +1045,20 @@ const { id = "contact-overlay", open = false } = Astro.props;
      * cannot move behind the overlay.
      */
     private lockScroll() {
+      const html = document.documentElement;
       const body = document.body;
 
-      this.scrollLockY = window.scrollY;
+      this.scrollLockY = window.__lenis?.scroll ?? window.scrollY;
 
-      this.bodyStyles = {
-        position: body.style.position,
-        top: body.style.top,
-        left: body.style.left,
-        right: body.style.right,
-        width: body.style.width,
-        overflow: body.style.overflow,
+      this.scrollStyles = {
+        htmlOverflow: html.style.overflow,
+        bodyOverflow: body.style.overflow,
       };
 
-      body.style.position = "fixed";
-      body.style.top = `-${this.scrollLockY}px`;
-      body.style.left = "0";
-      body.style.right = "0";
-      body.style.width = "100%";
+      // Stop Lenis before locking document scrolling.
+      window.__lenis?.stop();
+
+      html.style.overflow = "hidden";
       body.style.overflow = "hidden";
     }
 
@@ -1065,20 +1066,22 @@ const { id = "contact-overlay", open = false } = Astro.props;
      * Restore the document exactly as it was before locking.
      */
     private unlockScroll() {
+      const html = document.documentElement;
       const body = document.body;
 
-      if (this.bodyStyles) {
-        body.style.position = this.bodyStyles.position;
-        body.style.top = this.bodyStyles.top;
-        body.style.left = this.bodyStyles.left;
-        body.style.right = this.bodyStyles.right;
-        body.style.width = this.bodyStyles.width;
-        body.style.overflow = this.bodyStyles.overflow;
+      if (!this.scrollStyles) return;
 
-        this.bodyStyles = null;
-      }
+      html.style.overflow = this.scrollStyles.htmlOverflow;
+      body.style.overflow = this.scrollStyles.bodyOverflow;
 
-      window.scrollTo(0, this.scrollLockY);
+      this.scrollStyles = null;
+
+      // Restore Lenis's saved position before restarting it.
+      window.__lenis?.scrollTo(this.scrollLockY, {
+        immediate: true,
+      });
+
+      window.__lenis?.start();
     }
 
     /**

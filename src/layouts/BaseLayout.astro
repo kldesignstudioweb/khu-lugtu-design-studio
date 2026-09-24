@@ -38,6 +38,12 @@ const { title, description } = Astro.props;
 <script>
   import Lenis from "lenis";
 
+  declare global {
+    interface Window {
+      __lenis?: Lenis;
+    }
+  }
+
   let lenis: Lenis | undefined;
 
   function initLenis() {
@@ -45,11 +51,15 @@ const { title, description } = Astro.props;
     if (lenis) return;
 
     lenis = new Lenis({ autoRaf: true });
+
+    window.__lenis = lenis;
   }
 
   function destroyLenis() {
     lenis?.destroy();
+
     lenis = undefined;
+    window.__lenis = undefined;
   }
 
   // Initial load
