@@ -541,14 +541,20 @@ const { id = "contact-overlay", open = false } = Astro.props;
     2: "Project Details",
     3: "Vision & Alignment",
   };
+
   const TOTAL_STEPS = 3;
 
   /**
-   * Global allow-lists per field name. Anything not in the list is
-   * stripped on input. This blocks paste-injection of control chars,
-   * zero-width chars, RTL overrides, and HTML/script fragments.
+   * Global allow-lists per field name.
+   * Anything not in the list is stripped on input.
    */
-  type SanitizeKind = "name" | "email" | "phone" | "number" | "text" | "multiline";
+  type SanitizeKind =
+    | "name"
+    | "email"
+    | "phone"
+    | "number"
+    | "text"
+    | "multiline";
 
   const FIELD_KIND: Record<string, SanitizeKind> = {
     fullName: "name",
@@ -560,19 +566,12 @@ const { id = "contact-overlay", open = false } = Astro.props;
     vision: "text",
   };
 
-  // Allow-list regexes: keep ONLY these characters while the user types/pastes.
   const ALLOW: Record<SanitizeKind, RegExp> = {
-    // Unicode letters, combining marks, apostrophes, periods, hyphens, spaces
     name: /[^\p{L}\p{M}'’.\-\s]/gu,
-    // RFC-ish email charset
     email: /[^A-Za-z0-9._%+\-@]/g,
-    // Phone: digits, +, -, (), space
     phone: /[^0-9+\-()\s]/g,
-    // Digits only (for number inputs we sanitize to digits; browser handles min/max)
     number: /[^0-9]/g,
-    // Generic single-line: letters, digits, common punctuation, no angle brackets or control chars
     text: /[^\p{L}\p{M}\p{N}'’.,;:!?&()\-/#\s]/gu,
-    // Multi-line (unused here but available)
     multiline: /[^\p{L}\p{M}\p{N}'’.,;:!?&()\-/#\s\n\r]/gu,
   };
 
@@ -585,7 +584,6 @@ const { id = "contact-overlay", open = false } = Astro.props;
   };
 
   function stripControlChars(value: string): string {
-    // Remove C0/C1 controls, zero-width, bidi overrides, BOM.
     return value.replace(
       /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g,
       "",
@@ -594,40 +592,43 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   function sanitizeField(field: FieldEl): void {
     const kind = FIELD_KIND[field.name];
+
     if (!kind) return;
 
     let value = field.value;
 
-    // Strip dangerous invisible/control characters first.
     const cleaned = stripControlChars(value);
+
     if (cleaned !== value) {
       value = cleaned;
     }
 
-    // Apply allow-list.
     const allow = ALLOW[kind];
     const filtered = value.replace(allow, "");
+
     if (filtered !== value) {
       value = filtered;
     }
 
-    // Enforce max length as a hard cap (in addition to the attribute).
     const cap = MAX_LEN[field.name];
+
     if (typeof cap === "number" && value.length > cap) {
       value = value.slice(0, cap);
     }
 
     if (value !== field.value) {
       const el = field as HTMLInputElement;
-      // Preserve caret roughly at end-of-edit rather than jumping to 0.
+
       const start = el.selectionStart ?? value.length;
       const delta = field.value.length - value.length;
+
       el.value = value;
+
       try {
         const pos = Math.max(0, start - delta);
         el.setSelectionRange(pos, pos);
       } catch {
-        /* setSelectionRange not supported on some input types */
+        // setSelectionRange is not supported on some input types.
       }
     }
   }
@@ -648,64 +649,94 @@ const { id = "contact-overlay", open = false } = Astro.props;
       if (el.hasAttribute("hidden")) return false;
       if (el.closest("[hidden]")) return false;
       if (el.closest("[aria-hidden='true']")) return false;
+
       return el.offsetParent !== null || el === document.activeElement;
     });
   }
 
-  /**
-   * Produce a short, human-readable error message from a field's
-   * ValidityState.
-   */
   function getFieldError(field: FieldEl): string {
     const v = field.validity;
-    const label = (field.labels?.[0]?.textContent ?? field.name ?? "This field")
+
+    const label = (
+      field.labels?.[0]?.textContent ??
+      field.name ??
+      "This field"
+    )
       .replace(/\s*\*\s*$/, "")
       .trim();
 
     if (v.valueMissing) {
-      if (field instanceof HTMLSelectElement)
+      if (field instanceof HTMLSelectElement) {
         return `Please select a ${label.toLowerCase()}.`;
+      }
+
       return `${label} is required.`;
     }
+
     if (v.typeMismatch) {
-      if (field.type === "email") return "Please enter a valid email address.";
+      if (field.type === "email") {
+        return "Please enter a valid email address.";
+      }
+
       return `${label} is not valid.`;
     }
+
     if (v.patternMismatch) {
-      if (field.name === "fullName")
+      if (field.name === "fullName") {
         return "Please use letters, spaces, hyphens, apostrophes, or periods only.";
-      if (field.name === "email")
+      }
+
+      if (field.name === "email") {
         return "Please enter a valid email address (e.g. name@example.com).";
-      if (field.name === "phone")
+      }
+
+      if (field.name === "phone") {
         return "Please enter a valid phone number (digits, +, -, spaces, parentheses).";
-      if (field.name === "location")
+      }
+
+      if (field.name === "location") {
         return "Please use letters, numbers, spaces, commas, and hyphens only.";
-      if (field.name === "vision")
+      }
+
+      if (field.name === "vision") {
         return "Please use plain text without special or control characters.";
+      }
+
       return `${label} is not in the expected format.`;
     }
+
     if (v.tooShort) {
       const min = field.getAttribute("minlength") ?? "";
+
       return `${label} must be at least ${min} characters.`;
     }
+
     if (v.tooLong) {
       const max = field.getAttribute("maxlength") ?? "";
+
       return `${label} must be at most ${max} characters.`;
     }
+
     if (v.rangeUnderflow) {
       const min = field.getAttribute("min") ?? "";
+
       return `${label} must be at least ${min}.`;
     }
+
     if (v.rangeOverflow) {
       const max = field.getAttribute("max") ?? "";
+
       return `${label} must be at most ${max}.`;
     }
+
     if (v.stepMismatch) {
       return `${label} must be a whole number.`;
     }
+
     if (v.badInput) {
       return `Please enter a valid value for ${label.toLowerCase()}.`;
     }
+
     return field.validationMessage || `${label} is invalid.`;
   }
 
@@ -724,83 +755,161 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
     private currentStep = 1;
     private lastFocused: HTMLElement | null = null;
+
+    /**
+     * Scroll position of the document before the overlay opened.
+     */
     private scrollLockY = 0;
+
+    /**
+     * Previous inline body styles.
+     * This prevents the overlay from destroying styles owned by
+     * another part of the application.
+     */
+    private bodyStyles: {
+      position: string;
+      top: string;
+      left: string;
+      right: string;
+      width: string;
+      overflow: string;
+    } | null = null;
+
     private boundKeydown = (e: KeyboardEvent) => this.onKeydown(e);
+
+    /**
+     * Captures wheel input before Lenis/document scrolling receives it.
+     */
+    private boundWheel = (e: WheelEvent) => this.onWheel(e);
+
     private boundOpen = (e: Event) => {
       const detail = (e as CustomEvent<{ id?: string }>).detail;
-      if (!detail?.id || detail.id === this.root.id) this.open();
+
+      if (!detail?.id || detail.id === this.root.id) {
+        this.open();
+      }
     };
+
     private boundClose = (e: Event) => {
       const detail = (e as CustomEvent<{ id?: string }>).detail;
-      if (!detail?.id || detail.id === this.root.id) this.close();
+
+      if (!detail?.id || detail.id === this.root.id) {
+        this.close();
+      }
     };
 
     constructor(root: OverlayEl) {
       this.root = root;
-      this.panel = root.querySelector<HTMLElement>("[data-overlay-panel]")!;
-      this.form = root.querySelector<HTMLFormElement>("[data-overlay-form]")!;
+
+      this.panel = root.querySelector<HTMLElement>(
+        "[data-overlay-panel]",
+      )!;
+
+      this.form = root.querySelector<HTMLFormElement>(
+        "[data-overlay-form]",
+      )!;
+
       this.backdrop = root.querySelector<HTMLElement>(
         "[data-overlay-backdrop]",
       )!;
+
       this.closeBtn = root.querySelector<HTMLButtonElement>(
         "[data-overlay-close]",
       )!;
-      this.prevBtn = root.querySelector<HTMLButtonElement>("[data-step-prev]")!;
-      this.nextBtn = root.querySelector<HTMLButtonElement>("[data-step-next]")!;
-      this.submitBtn =
-        root.querySelector<HTMLButtonElement>("[data-step-submit]")!;
+
+      this.prevBtn = root.querySelector<HTMLButtonElement>(
+        "[data-step-prev]",
+      )!;
+
+      this.nextBtn = root.querySelector<HTMLButtonElement>(
+        "[data-step-next]",
+      )!;
+
+      this.submitBtn = root.querySelector<HTMLButtonElement>(
+        "[data-step-submit]",
+      )!;
+
       this.stepEls = Array.from(
         root.querySelectorAll<HTMLElement>("[data-step]"),
       );
+
       this.stepIndicator = root.querySelector<HTMLElement>(
         "[data-step-indicator]",
       )!;
-      this.stepLabel = root.querySelector<HTMLElement>("[data-step-label]")!;
+
+      this.stepLabel = root.querySelector<HTMLElement>(
+        "[data-step-label]",
+      )!;
     }
 
     init() {
       if (this.root.__contactOverlayInit) return;
+
       this.root.__contactOverlayInit = true;
 
       this.closeBtn.addEventListener("click", () => this.close());
+
       this.backdrop.addEventListener("click", () => this.close());
+
       this.nextBtn.addEventListener("click", () => this.goNext());
+
       this.prevBtn.addEventListener("click", () => this.goPrev());
+
       this.form.addEventListener("submit", (e) => this.onSubmit(e));
 
-      // ---- Input hardening: sanitize on every keystroke/paste. ----
+      // ------------------------------------------------------------
+      // Input hardening
+      // ------------------------------------------------------------
+
       this.form.addEventListener(
         "beforeinput",
         (e) => {
           const target = e.target as HTMLElement | null;
+
           if (
             target instanceof HTMLInputElement &&
             typeof e.data === "string" &&
             e.data.length > 0
           ) {
             const kind = FIELD_KIND[target.name];
+
             if (kind) {
               const allow = ALLOW[kind];
               const test = e.data.replace(allow, "");
+
               if (test !== e.data) {
-                // Block paste/typing of disallowed characters entirely.
                 e.preventDefault();
-                // Splice in only the allowed characters at the caret.
+
                 const el = target;
-                const start = el.selectionStart ?? el.value.length;
-                const end = el.selectionEnd ?? el.value.length;
+
+                const start =
+                  el.selectionStart ?? el.value.length;
+
+                const end =
+                  el.selectionEnd ?? el.value.length;
+
                 const insert = e.data.replace(allow, "");
+
                 const next =
-                  el.value.slice(0, start) + insert + el.value.slice(end);
+                  el.value.slice(0, start) +
+                  insert +
+                  el.value.slice(end);
+
                 const cap = MAX_LEN[el.name];
+
                 const capped =
-                  typeof cap === "number" ? next.slice(0, cap) : next;
+                  typeof cap === "number"
+                    ? next.slice(0, cap)
+                    : next;
+
                 el.value = capped;
+
                 const pos = start + insert.length;
+
                 try {
                   el.setSelectionRange(pos, pos);
                 } catch {
-                  /* noop */
+                  // noop
                 }
               }
             }
@@ -809,12 +918,15 @@ const { id = "contact-overlay", open = false } = Astro.props;
         { capture: true },
       );
 
-      // Fallback for browsers without beforeinput, plus enforcement on paste.
+      // Fallback for browsers without beforeinput.
+      // Also handles paste/input manipulation.
       this.form.addEventListener("input", (e) => {
         const target = e.target as HTMLElement | null;
+
         if (!(target instanceof HTMLInputElement)) return;
+
         sanitizeField(target);
-        // Live-clear an existing error once the field becomes valid.
+
         if (this.hasError(target) && target.checkValidity()) {
           this.clearFieldError(target);
         }
@@ -822,15 +934,23 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       this.form.addEventListener("change", (e) => {
         const target = e.target as HTMLElement | null;
+
         if (!(target instanceof HTMLSelectElement)) return;
-        if (target.checkValidity()) this.clearFieldError(target);
+
+        if (target.checkValidity()) {
+          this.clearFieldError(target);
+        }
       });
 
-      // Blur validation: surface an error when the user leaves a field.
+      // ------------------------------------------------------------
+      // Blur validation
+      // ------------------------------------------------------------
+
       this.form.addEventListener(
         "blur",
         (e) => {
           const target = e.target as HTMLElement | null;
+
           if (
             target instanceof HTMLInputElement ||
             target instanceof HTMLSelectElement ||
@@ -844,16 +964,21 @@ const { id = "contact-overlay", open = false } = Astro.props;
         true,
       );
 
-      // Block invalid numeric keystrokes (e, E, +, -) on number inputs.
+      // ------------------------------------------------------------
+      // Numeric input protection
+      // ------------------------------------------------------------
+
       this.form.addEventListener(
         "keydown",
         (e) => {
           const target = e.target as HTMLElement | null;
+
           if (
             target instanceof HTMLInputElement &&
             target.type === "number"
           ) {
             const blocked = ["e", "E", "+", "-"];
+
             if (blocked.includes(e.key)) {
               e.preventDefault();
             }
@@ -862,71 +987,141 @@ const { id = "contact-overlay", open = false } = Astro.props;
         { capture: true },
       );
 
-      // Prevent wheel-driven value change on number inputs (accessibility / data-integrity).
-      this.form.addEventListener(
-        "wheel",
-        (e) => {
-          const target = e.target as HTMLElement | null;
-          if (
-            target instanceof HTMLInputElement &&
-            target.type === "number" &&
-            document.activeElement === target
-          ) {
-            target.blur();
-          }
-        },
-        { passive: true },
+      // ------------------------------------------------------------
+      // Global overlay wheel scrolling
+      //
+      // Capture phase is intentional:
+      // the event is intercepted before Lenis/document scrolling.
+      // ------------------------------------------------------------
+
+      document.addEventListener("wheel", this.boundWheel, {
+        capture: true,
+        passive: false,
+      });
+
+      // ------------------------------------------------------------
+      // Global overlay events
+      // ------------------------------------------------------------
+
+      document.addEventListener(
+        "keydown",
+        this.boundKeydown,
       );
 
-      document.addEventListener("keydown", this.boundKeydown);
-      document.addEventListener("contact-overlay:open", this.boundOpen);
-      document.addEventListener("contact-overlay:close", this.boundClose);
+      document.addEventListener(
+        "contact-overlay:open",
+        this.boundOpen,
+      );
+
+      document.addEventListener(
+        "contact-overlay:close",
+        this.boundClose,
+      );
 
       this.renderStep();
     }
 
     destroy() {
-      document.removeEventListener("keydown", this.boundKeydown);
-      document.removeEventListener("contact-overlay:open", this.boundOpen);
-      document.removeEventListener("contact-overlay:close", this.boundClose);
+      document.removeEventListener(
+        "keydown",
+        this.boundKeydown,
+      );
+
+      /**
+       * The capture/passive options don't need to match for removal
+       * except for capture, which must remain true.
+       */
+      document.removeEventListener(
+        "wheel",
+        this.boundWheel,
+        true,
+      );
+
+      document.removeEventListener(
+        "contact-overlay:open",
+        this.boundOpen,
+      );
+
+      document.removeEventListener(
+        "contact-overlay:close",
+        this.boundClose,
+      );
+
       this.unlockScroll();
     }
 
-    isOpen() {
+    isOpen(): boolean {
       return this.root.dataset.state === "open";
     }
 
     open() {
       if (this.isOpen()) return;
-      this.lastFocused = (document.activeElement as HTMLElement) ?? null;
+
+      this.lastFocused =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+
       this.root.dataset.state = "open";
       this.root.setAttribute("aria-hidden", "false");
+
       this.lockScroll();
+
       requestAnimationFrame(() => {
         const focusables = getFocusable(this.panel);
+
         (focusables[0] ?? this.panel).focus();
       });
+
       this.root.dispatchEvent(
-        new CustomEvent("contact-overlay:opened", { bubbles: true }),
+        new CustomEvent("contact-overlay:opened", {
+          bubbles: true,
+        }),
       );
     }
 
     close() {
       if (!this.isOpen()) return;
+
       this.root.dataset.state = "closed";
       this.root.setAttribute("aria-hidden", "true");
+
       this.unlockScroll();
-      if (this.lastFocused && document.contains(this.lastFocused)) {
+
+      if (
+        this.lastFocused &&
+        document.contains(this.lastFocused)
+      ) {
         this.lastFocused.focus();
       }
+
       this.root.dispatchEvent(
-        new CustomEvent("contact-overlay:closed", { bubbles: true }),
+        new CustomEvent("contact-overlay:closed", {
+          bubbles: true,
+        }),
       );
     }
 
+    /**
+     * Lock the document while preserving its previous inline styles.
+     *
+     * The body is fixed at its current scroll position so the page
+     * cannot move behind the overlay.
+     */
     private lockScroll() {
       const body = document.body;
+
       this.scrollLockY = window.scrollY;
+
+      this.bodyStyles = {
+        position: body.style.position,
+        top: body.style.top,
+        left: body.style.left,
+        right: body.style.right,
+        width: body.style.width,
+        overflow: body.style.overflow,
+      };
+
       body.style.position = "fixed";
       body.style.top = `-${this.scrollLockY}px`;
       body.style.left = "0";
@@ -935,15 +1130,59 @@ const { id = "contact-overlay", open = false } = Astro.props;
       body.style.overflow = "hidden";
     }
 
+    /**
+     * Restore the document exactly as it was before locking.
+     */
     private unlockScroll() {
       const body = document.body;
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
-      body.style.overflow = "";
+
+      if (this.bodyStyles) {
+        body.style.position = this.bodyStyles.position;
+        body.style.top = this.bodyStyles.top;
+        body.style.left = this.bodyStyles.left;
+        body.style.right = this.bodyStyles.right;
+        body.style.width = this.bodyStyles.width;
+        body.style.overflow = this.bodyStyles.overflow;
+
+        this.bodyStyles = null;
+      }
+
       window.scrollTo(0, this.scrollLockY);
+    }
+
+    /**
+     * Redirect wheel scrolling to the contact panel while open.
+     *
+     * This intentionally runs on the document in the capture phase,
+     * so wheel events originating anywhere on the page are consumed
+     * by the overlay instead of reaching Lenis or the document.
+     */
+    private onWheel(e: WheelEvent) {
+      if (!this.isOpen()) return;
+
+      e.preventDefault();
+
+      let deltaY = e.deltaY;
+
+      /**
+       * WheelEvent.deltaY can be expressed in:
+       *
+       * - pixels
+       * - lines
+       * - pages
+       *
+       * Normalize the latter two into approximate pixels before
+       * applying the value to scrollTop.
+       */
+      if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+        deltaY *= 16;
+      } else if (
+        e.deltaMode === WheelEvent.DOM_DELTA_PAGE
+      ) {
+        deltaY *= this.panel.clientHeight;
+      }
+
+      this.panel.scrollTop += deltaY;
     }
 
     private onKeydown(e: KeyboardEvent) {
@@ -957,22 +1196,33 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       if (e.key === "Tab") {
         const focusables = getFocusable(this.panel);
+
         if (focusables.length === 0) {
           e.preventDefault();
           this.panel.focus();
           return;
         }
+
         const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const active = document.activeElement as HTMLElement | null;
+        const last =
+          focusables[focusables.length - 1];
+
+        const active =
+          document.activeElement as HTMLElement | null;
 
         if (e.shiftKey) {
-          if (active === first || !this.panel.contains(active)) {
+          if (
+            active === first ||
+            !this.panel.contains(active)
+          ) {
             e.preventDefault();
             last.focus();
           }
         } else {
-          if (active === last || !this.panel.contains(active)) {
+          if (
+            active === last ||
+            !this.panel.contains(active)
+          ) {
             e.preventDefault();
             first.focus();
           }
@@ -983,21 +1233,34 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private renderStep() {
       this.stepEls.forEach((el) => {
         const step = Number(el.dataset.step);
+
         el.hidden = step !== this.currentStep;
       });
 
       this.prevBtn.hidden = this.currentStep === 1;
-      this.nextBtn.hidden = this.currentStep === TOTAL_STEPS;
-      this.submitBtn.hidden = this.currentStep !== TOTAL_STEPS;
 
-      this.stepIndicator.textContent = `Step ${this.currentStep} of ${TOTAL_STEPS}`;
-      this.stepLabel.textContent = STEP_LABELS[this.currentStep] ?? "";
+      this.nextBtn.hidden =
+        this.currentStep === TOTAL_STEPS;
+
+      this.submitBtn.hidden =
+        this.currentStep !== TOTAL_STEPS;
+
+      this.stepIndicator.textContent =
+        `Step ${this.currentStep} of ${TOTAL_STEPS}`;
+
+      this.stepLabel.textContent =
+        STEP_LABELS[this.currentStep] ?? "";
     }
 
-    /* ---------- Validation helpers ---------- */
+    // --------------------------------------------------------------
+    // Validation helpers
+    // --------------------------------------------------------------
 
-    private errorElFor(field: FieldEl): HTMLElement | null {
+    private errorElFor(
+      field: FieldEl,
+    ): HTMLElement | null {
       if (!field.id) return null;
+
       return this.form.querySelector<HTMLElement>(
         `[data-error-for="${CSS.escape(field.id)}"]`,
       );
@@ -1005,56 +1268,86 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
     private hasError(field: FieldEl): boolean {
       const el = this.errorElFor(field);
+
       return !!el && !el.hidden;
     }
 
     private showFieldError(field: FieldEl) {
       const el = this.errorElFor(field);
+
       if (!el) return;
+
       el.textContent = getFieldError(field);
       el.hidden = false;
+
       field.setAttribute("aria-invalid", "true");
+
       if (field.id) {
         el.id = `${field.id}-error`;
-        field.setAttribute("aria-describedby", el.id);
+
+        field.setAttribute(
+          "aria-describedby",
+          el.id,
+        );
       }
     }
 
     private clearFieldError(field: FieldEl) {
       const el = this.errorElFor(field);
+
       if (el) {
         el.hidden = true;
         el.textContent = "";
       }
+
       field.removeAttribute("aria-invalid");
       field.removeAttribute("aria-describedby");
     }
 
-    /** Validate every field in the current step. Returns true if all valid. */
+    /**
+     * Validate every field in the current step.
+     */
     private validateCurrentStep(): boolean {
       const current = this.stepEls.find(
-        (el) => Number(el.dataset.step) === this.currentStep,
+        (el) =>
+          Number(el.dataset.step) === this.currentStep,
       );
+
       if (!current) return true;
 
       const fields = Array.from(
-        current.querySelectorAll<FieldEl>("input, select, textarea"),
-      ).filter((f) => {
-        if (f.hasAttribute("data-honeypot")) return false;
-        if ((f as HTMLInputElement).disabled) return false;
+        current.querySelectorAll<FieldEl>(
+          "input, select, textarea",
+        ),
+      ).filter((field) => {
+        if (field.hasAttribute("data-honeypot")) {
+          return false;
+        }
+
+        if (
+          (field as HTMLInputElement).disabled
+        ) {
+          return false;
+        }
+
         return true;
       });
 
       let firstInvalid: FieldEl | null = null;
 
       for (const field of fields) {
-        // Sanitize just before validating so we never validate dirty input.
-        if (field instanceof HTMLInputElement) sanitizeField(field);
+        if (field instanceof HTMLInputElement) {
+          sanitizeField(field);
+        }
+
         if (field.checkValidity()) {
           this.clearFieldError(field);
         } else {
           this.showFieldError(field);
-          if (!firstInvalid) firstInvalid = field;
+
+          if (!firstInvalid) {
+            firstInvalid = field;
+          }
         }
       }
 
@@ -1062,13 +1355,16 @@ const { id = "contact-overlay", open = false } = Astro.props;
         firstInvalid.focus();
         return false;
       }
+
       return true;
     }
 
     private goNext() {
       if (!this.validateCurrentStep()) return;
+
       if (this.currentStep < TOTAL_STEPS) {
         this.currentStep += 1;
+
         this.renderStep();
         this.focusFirstField();
       }
@@ -1077,6 +1373,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private goPrev() {
       if (this.currentStep > 1) {
         this.currentStep -= 1;
+
         this.renderStep();
         this.focusFirstField();
       }
@@ -1085,12 +1382,18 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private focusFirstField() {
       requestAnimationFrame(() => {
         const current = this.stepEls.find(
-          (el) => Number(el.dataset.step) === this.currentStep,
+          (el) =>
+            Number(el.dataset.step) ===
+            this.currentStep,
         );
+
         if (!current) return;
-        const first = current.querySelector<HTMLElement>(
-          "input, select, textarea, button",
-        );
+
+        const first =
+          current.querySelector<HTMLElement>(
+            "input, select, textarea, button",
+          );
+
         first?.focus();
       });
     }
@@ -1098,81 +1401,154 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private onSubmit(e: SubmitEvent) {
       e.preventDefault();
 
-      // Honeypot check — if filled, silently drop the submission.
-      const honeypot = this.form.querySelector<HTMLInputElement>(
-        "[data-honeypot]",
-      );
-      if (honeypot && honeypot.value.trim() !== "") {
-        // Pretend success to the bot; do nothing.
+      // ------------------------------------------------------------
+      // Honeypot
+      // ------------------------------------------------------------
+
+      const honeypot =
+        this.form.querySelector<HTMLInputElement>(
+          "[data-honeypot]",
+        );
+
+      if (
+        honeypot &&
+        honeypot.value.trim() !== ""
+      ) {
+        // Pretend success to automated submissions.
         return;
       }
 
-      // Sanitize every field across all steps before validation.
+      // ------------------------------------------------------------
+      // Sanitize every input
+      // ------------------------------------------------------------
+
       this.form
-        .querySelectorAll<HTMLInputElement>("input:not([type=hidden])")
+        .querySelectorAll<HTMLInputElement>(
+          "input:not([type=hidden])",
+        )
         .forEach((input) => {
-          if (input.hasAttribute("data-honeypot")) return;
+          if (
+            input.hasAttribute("data-honeypot")
+          ) {
+            return;
+          }
+
           sanitizeField(input);
         });
 
-      // Re-validate every step before submitting.
-      for (let step = 1; step <= TOTAL_STEPS; step++) {
+      // ------------------------------------------------------------
+      // Validate every step
+      // ------------------------------------------------------------
+
+      for (
+        let step = 1;
+        step <= TOTAL_STEPS;
+        step++
+      ) {
         const saved = this.currentStep;
+
         this.currentStep = step;
-        const ok = this.validateCurrentStep();
+
+        const ok =
+          this.validateCurrentStep();
+
         this.currentStep = saved;
+
         if (!ok) {
           this.currentStep = step;
+
           this.renderStep();
           this.focusFirstField();
+
           return;
         }
       }
 
-      // Build a normalized FormData. Numbers are coerced; strings trimmed.
+      // ------------------------------------------------------------
+      // Build normalized FormData
+      // ------------------------------------------------------------
+
       const fd = new FormData();
+
       this.form
-        .querySelectorAll<FieldEl>("input, select, textarea")
+        .querySelectorAll<FieldEl>(
+          "input, select, textarea",
+        )
         .forEach((field) => {
           if (!field.name) return;
-          if (field.hasAttribute("data-honeypot")) return;
+
+          if (
+            field.hasAttribute("data-honeypot")
+          ) {
+            return;
+          }
 
           let value = field.value.trim();
 
           if (field.type === "number") {
-            const n = Number(value);
-            value = Number.isFinite(n) ? String(n) : "";
+            const numberValue = Number(value);
+
+            value = Number.isFinite(numberValue)
+              ? String(numberValue)
+              : "";
           }
 
-          // Defense-in-depth: strip residual control chars one more time.
           value = stripControlChars(value);
 
           fd.set(field.name, value);
         });
 
+      // ------------------------------------------------------------
+      // Dispatch submission event
+      // ------------------------------------------------------------
+
       this.root.dispatchEvent(
-        new CustomEvent("contact-overlay:submit", {
-          bubbles: true,
-          detail: { formData: fd },
-        }),
+        new CustomEvent(
+          "contact-overlay:submit",
+          {
+            bubbles: true,
+            detail: {
+              formData: fd,
+            },
+          },
+        ),
       );
     }
   }
 
+  // --------------------------------------------------------------
+  // Initialization
+  // --------------------------------------------------------------
+
   function initOverlays() {
     document
-      .querySelectorAll<OverlayEl>("[data-contact-overlay]")
+      .querySelectorAll<OverlayEl>(
+        "[data-contact-overlay]",
+      )
       .forEach((el) => {
         if (el.__contactOverlayInit) return;
+
         const instance = new ContactOverlay(el);
+
         instance.init();
+
         (
-          el as OverlayEl & { __contactOverlay?: ContactOverlay }
+          el as OverlayEl & {
+            __contactOverlay?: ContactOverlay;
+          }
         ).__contactOverlay = instance;
       });
   }
 
   initOverlays();
-  document.addEventListener("astro:page-load", initOverlays);
-  document.addEventListener("astro:after-swap", initOverlays);
+
+  document.addEventListener(
+    "astro:page-load",
+    initOverlays,
+  );
+
+  document.addEventListener(
+    "astro:after-swap",
+    initOverlays,
+  );
 </script>
