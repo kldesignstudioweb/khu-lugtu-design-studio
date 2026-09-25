@@ -1,53 +1,82 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
-import { getAllWorks } from "@/lib/works";
+import {
+    getAllWorks,
+    getWorkBySlug,
+} from "@/lib/works";
 import type { ResolvedWork } from "@/types/work";
 
-export async function getStaticPaths() {
-    const works = await getAllWorks();
+const slug = Astro.params.slug;
 
-    // No works → no pages. Prevents modulo-by-zero and empty builds.
-    if (works.length === 0) return [];
-
-    return works.map((work, i) => ({
-        params: { slug: work.slug },
-        props: {
-            work,
-            // Only assign a "next" when there is more than one work.
-            // Otherwise the CTA would link to the current page.
-            nextWork: works.length > 1 ? works[(i + 1) % works.length]! : null,
-        },
-    }));
+if (!slug) {
+    return new Response("Work slug is required.", {
+        status: 400,
+        statusText: "Bad Request",
+    });
 }
 
-interface Props {
-    work: ResolvedWork;
-    nextWork: ResolvedWork | null;
+const work = await getWorkBySlug(slug);
+
+if (!work) {
+    return new Response("Work not found.", {
+        status: 404,
+        statusText: "Not Found",
+    });
 }
 
-const { work, nextWork } = Astro.props;
-const { title, year, category, description, coverImage, images } = work;
+const works = await getAllWorks();
+
+const currentIndex = works.findIndex(
+    (item) => item.slug === work.slug,
+);
+
+const nextWork: ResolvedWork | null =
+    works.length > 1 && currentIndex !== -1
+        ? works[(currentIndex + 1) % works.length] ?? null
+        : null;
+
+const {
+    title,
+    year,
+    category,
+    description,
+    coverImage,
+    images,
+} = work;
 
 // Derive visual roles from data — never hardcode image indices.
 const heroImage = coverImage;
-const infoImage = images.find((img) => img.src !== coverImage.src);
+
+const infoImage = images.find(
+    (img) => img.src !== coverImage.src,
+);
+
 const galleryImages = images.filter(
-    (img) => img.src !== coverImage.src && img.src !== infoImage?.src,
+    (img) =>
+        img.src !== coverImage.src &&
+        img.src !== infoImage?.src,
 );
 
 // Responsive presets (shared, not duplicated on every <Image/>).
-const fullBleed = { widths: [480, 800, 1280, 1920, 2560], sizes: "100vw" };
+const fullBleed = {
+    widths: [480, 800, 1280, 1920, 2560],
+    sizes: "100vw",
+};
+
 const halfWidth = {
     widths: [480, 800, 1280, 1920],
     sizes: "(min-width: 1024px) 50vw, 100vw",
 };
 
 // Grid rhythm: 2 side-by-side, then 1 full-width, repeating.
-// If the final row would contain a single orphaned image, promote it to full-width.
+// If the final row would contain a single orphaned image,
+// promote it to full-width.
 const galleryCount = galleryImages.length;
+
 const isWide = (i: number) =>
-    (i + 1) % 3 === 0 || (i === galleryCount - 1 && galleryCount % 3 === 1);
+    (i + 1) % 3 === 0 ||
+    (i === galleryCount - 1 && galleryCount % 3 === 1);
 ---
 
 <BaseLayout title={`Khu + Lugtu Design Studio | ${title}`}>
@@ -64,7 +93,10 @@ const isWide = (i: number) =>
                 draggable="false"
                 {...fullBleed}
             />
-            <p class="uppercase absolute bottom-0 left-0 m-4 text-xl leading-none">
+
+            <p
+                class="uppercase absolute bottom-0 left-0 m-4 text-xl leading-none"
+            >
                 {title}
             </p>
         </div>
@@ -84,13 +116,16 @@ const isWide = (i: number) =>
             )}
 
             <div class="absolute top-0 left-0 m-4">
-                <p class="max-w-sm text-balance mb-8">{description}</p>
+                <p class="max-w-sm text-balance mb-8">
+                    {description}
+                </p>
 
                 <div class="space-y-4">
                     <div>
                         <p>Year</p>
                         <p class="text-muted">{year}</p>
                     </div>
+
                     <div>
                         <p>Type</p>
                         <p class="text-muted">{category}</p>
@@ -124,7 +159,9 @@ const isWide = (i: number) =>
             <Image
                 src={nextWork?.coverImage ?? coverImage}
                 alt={
-                    nextWork ? `${nextWork.title} — cover` : `${title} — cover`
+                    nextWork
+                        ? `${nextWork.title} — cover`
+                        : `${title} — cover`
                 }
                 loading="lazy"
                 decoding="async"
@@ -133,9 +170,14 @@ const isWide = (i: number) =>
                 {...fullBleed}
             />
 
-            <div class="flex flex-col justify-between items-center text-center size-full absolute top-0 py-4">
+            <div
+                class="flex flex-col justify-between items-center text-center size-full absolute top-0 py-4"
+            >
                 {nextWork ? (
-                    <a href={`/works/${nextWork.slug}`} class="text-sm">
+                    <a
+                        href={`/works/${nextWork.slug}`}
+                        class="text-sm"
+                    >
                         ( View next work )
                     </a>
                 ) : (

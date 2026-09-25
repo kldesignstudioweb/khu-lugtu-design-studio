@@ -5,6 +5,8 @@ import robotsTxt from "astro-robots-txt";
 import autoImport from "astro-auto-import";
 import tailwindcss from "@tailwindcss/vite";
 
+import netlify from "@astrojs/netlify";
+
 export default defineConfig({
   site: "https://kldesignstudio.com",
 
@@ -12,7 +14,7 @@ export default defineConfig({
     sitemap(),
     robotsTxt({
       policy: [{ userAgent: "*", allow: "/" }],
-      sitemap: "https://www.yourprojectdomain.com/sitemap-index.xml",
+      sitemap: "https://kldesignstudio.com/sitemap-index.xml",
     }),
     autoImport(),
   ],
@@ -20,4 +22,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: netlify(),
+  output: "server",
 });
