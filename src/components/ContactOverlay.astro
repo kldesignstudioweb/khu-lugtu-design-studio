@@ -145,7 +145,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
               required
               minlength="7"
               maxlength="20"
-              pattern="^\+?[0-9][0-9\s()\-]{6,18}[0-9]$"
+              pattern="^\+?[0-9][0-9\s\(\)\-]{6,18}[0-9]$"
               autocomplete="tel"
               inputmode="tel"
               class="block w-full p-4 bg-gray-400 text-black"
@@ -516,6 +516,23 @@ const { id = "contact-overlay", open = false } = Astro.props;
         </button>
       </div>
     </form>
+    <div
+      data-success-state
+      class="hidden min-h-[60svh] flex-col justify-center"
+      role="status"
+      aria-live="polite"
+      tabindex="-1"
+    >
+      <h3 class="uppercase border-b border-white/40 pb-2 mb-4">
+        Enquiry Submitted
+      </h3>
+
+      <p class="max-w-sm">
+        Thank you for getting in touch. Your project enquiry has been submitted
+        successfully. We will review the information and be in touch within 5
+        business days.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -732,6 +749,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
     private progressBar: HTMLElement;
     private currentStep = 1;
     private lastFocused: HTMLElement | null = null;
+    private successState: HTMLElement;
 
     /**
      * Scroll position of the document before the overlay opened.
@@ -780,6 +798,20 @@ const { id = "contact-overlay", open = false } = Astro.props;
       }
     };
 
+    private showSuccess(): void {
+      this.form.hidden = true;
+      this.successState.classList.remove("hidden");
+      this.successState.classList.add("flex");
+
+      this.successState.focus();
+    }
+
+    private resetSuccessState(): void {
+      this.form.hidden = false;
+      this.successState.classList.add("hidden");
+      this.successState.classList.remove("flex");
+    }
+
     constructor(root: OverlayEl) {
       this.root = root;
 
@@ -808,6 +840,10 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       this.progressBar = root.querySelector<HTMLElement>(
         "[data-progress-bar]",
+      )!;
+
+      this.successState = root.querySelector<HTMLElement>(
+        "[data-success-state]",
       )!;
     }
 
@@ -1023,6 +1059,12 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
       this.root.dataset.state = "closed";
       this.root.setAttribute("aria-hidden", "true");
+
+      this.resetSuccessState();
+      this.form.reset();
+
+      this.currentStep = 1;
+      this.renderStep();
 
       this.unlockScroll();
 
@@ -1310,97 +1352,95 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
     private async onSubmit(e: SubmitEvent): Promise<void> {
       e.preventDefault();
-    
+
       // ------------------------------------------------------------
       // Honeypot
       // ------------------------------------------------------------
-    
+
       const honeypot =
         this.form.querySelector<HTMLInputElement>("[data-honeypot]");
-    
+
       if (honeypot && honeypot.value.trim() !== "") {
         // Pretend success to automated submissions.
         return;
       }
-    
+
       // ------------------------------------------------------------
       // Sanitize every input
       // ------------------------------------------------------------
-    
+
       this.form
         .querySelectorAll<HTMLInputElement>("input:not([type=hidden])")
         .forEach((input) => {
           if (input.hasAttribute("data-honeypot")) {
             return;
           }
-    
+
           sanitizeField(input);
         });
-    
+
       // ------------------------------------------------------------
       // Validate every step
       // ------------------------------------------------------------
-    
+
       for (let step = 1; step <= TOTAL_STEPS; step++) {
         const saved = this.currentStep;
-    
+
         this.currentStep = step;
-    
+
         const ok = this.validateCurrentStep();
-    
+
         this.currentStep = saved;
-    
+
         if (!ok) {
           this.currentStep = step;
           this.renderStep();
           this.focusFirstField();
-    
+
           return;
         }
       }
-    
+
       // ------------------------------------------------------------
       // Build normalized payload
       // ------------------------------------------------------------
-    
+
       const payload: Record<string, string> = {};
-    
+
       this.form
         .querySelectorAll<FieldEl>("input, select, textarea")
         .forEach((field) => {
           if (!field.name) return;
-    
+
           if (field.hasAttribute("data-honeypot")) {
             return;
           }
-    
+
           let value = field.value.trim();
-    
+
           if (field.type === "number") {
             const numberValue = Number(value);
-    
-            value = Number.isFinite(numberValue)
-              ? String(numberValue)
-              : "";
+
+            value = Number.isFinite(numberValue) ? String(numberValue) : "";
           }
-    
+
           value = stripControlChars(value);
-    
+
           payload[field.name] = value;
         });
-    
+
       // ------------------------------------------------------------
       // Prevent duplicate submissions
       // ------------------------------------------------------------
-    
+
       this.submitBtn.disabled = true;
       this.nextBtn.disabled = true;
       this.prevBtn.disabled = true;
-    
+
       const originalSubmitText = this.submitBtn.textContent;
-    
+
       this.submitBtn.textContent = "( Sending... )";
-    
+
       try {
         const response = await fetch("/api/contact", {
           method: "POST",
@@ -1410,9 +1450,9 @@ const { id = "contact-overlay", open = false } = Astro.props;
           },
           body: JSON.stringify(payload),
         });
-    
+
         const result: unknown = await response.json().catch(() => null);
-    
+
         if (!response.ok) {
           const message =
             typeof result === "object" &&
@@ -1421,14 +1461,14 @@ const { id = "contact-overlay", open = false } = Astro.props;
             typeof result.message === "string"
               ? result.message
               : "Unable to send your enquiry.";
-    
+
           throw new Error(message);
         }
-    
+
         // ----------------------------------------------------------
         // Successful submission
         // ----------------------------------------------------------
-    
+
         this.root.dispatchEvent(
           new CustomEvent("contact-overlay:submit", {
             bubbles: true,
@@ -1437,15 +1477,15 @@ const { id = "contact-overlay", open = false } = Astro.props;
             },
           }),
         );
-    
+
         this.form.reset();
         this.currentStep = 1;
         this.renderStep();
-    
-        this.close();
+
+        this.showSuccess();
       } catch (error) {
         console.error("Contact form submission failed:", error);
-    
+
         window.alert(
           error instanceof Error
             ? error.message
@@ -1455,7 +1495,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
         this.submitBtn.disabled = false;
         this.nextBtn.disabled = false;
         this.prevBtn.disabled = false;
-    
+
         this.submitBtn.textContent = originalSubmitText;
       }
     }
@@ -1466,26 +1506,43 @@ const { id = "contact-overlay", open = false } = Astro.props;
   // --------------------------------------------------------------
 
   function initOverlays() {
+    document.querySelectorAll<OverlayEl>("[data-contact-overlay]").forEach((el) => {
+      if (el.__contactOverlayInit) return;
+  
+      const instance = new ContactOverlay(el);
+      instance.init();
+  
+      (
+        el as OverlayEl & {
+          __contactOverlay?: ContactOverlay;
+        }
+      ).__contactOverlay = instance;
+    });
+  }
+
+
+  function destroyOverlays() {
     document
       .querySelectorAll<OverlayEl>("[data-contact-overlay]")
       .forEach((el) => {
-        if (el.__contactOverlayInit) return;
-
-        const instance = new ContactOverlay(el);
-
-        instance.init();
-
-        (
+        const instance = (
           el as OverlayEl & {
             __contactOverlay?: ContactOverlay;
           }
-        ).__contactOverlay = instance;
+        ).__contactOverlay;
+  
+        instance?.destroy();
+  
+        delete (
+          el as OverlayEl & {
+            __contactOverlay?: ContactOverlay;
+          }
+        ).__contactOverlay;
       });
   }
 
   initOverlays();
-
+  
+  document.addEventListener("astro:before-swap", destroyOverlays);
   document.addEventListener("astro:page-load", initOverlays);
-
-  document.addEventListener("astro:after-swap", initOverlays);
 </script>
