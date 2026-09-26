@@ -6,27 +6,27 @@ const featured = await getFeaturedWorks();
 const count = String(featured.length).padStart(2, "0");
 ---
 
-<section class="h-svh text-white m-2">
+<section class="min-h-svh text-white m-2">
   <div class="relative">
     <div class="absolute top-4 left-4 z-10">
       <h2>Featured Works ({count})</h2>
-      <p class="text-muted">Drag or swipe left/right to view</p>
+      <p class="hidden md:block text-muted">Drag or swipe left/right to view</p>
     </div>
 
-    <div class="featured-works overflow-hidden">
-      <div class="featured-works__track flex gap-2 cursor-grab">
+    <div class="featured-works overflow-hidden rounded-lg">
+      <div class="featured-works__track flex flex-col md:flex-row gap-2 cursor-grab will-change-transform">
         {featured.map((work) => (
-          <div class="featured-works__slide shrink-0">
-            <a href={`/works/${work.slug}`} class="relative block h-svh">
+          <div class="featured-works__slide shrink-0 md:w-[90svw]">
+            <a href={`/works/${work.slug}`} class="relative block h-[80svh] md:h-svh">
               <Image
                 src={work.coverImage}
                 alt={work.title}
-                class="low-brightness"
+                class="low-brightness rounded-lg"
                 loading="lazy"
                 draggable="false"
               />
 
-              <h3 class="absolute bottom-0 left-0 m-4 lg:text-xl leading-none uppercase">
+              <h3 class="absolute bottom-0 left-0 m-4 text-lg md:text-xl leading-none uppercase">
                 {work.title}
               </h3>
             </a>
@@ -36,20 +36,6 @@ const count = String(featured.length).padStart(2, "0");
     </div>
   </div>
 </section>
-
-<style>
-  .featured-works__slide {
-    width: 90svw;
-  }
-
-  .featured-works__track {
-    will-change: transform;
-  }
-
-  .featured-works__track.is-dragging {
-    cursor: grabbing;
-  }
-</style>
 
 <script>
   import gsap from "gsap";

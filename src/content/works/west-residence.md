@@ -13,5 +13,5 @@ images:
   - /src/images/west-residence/west-residence-5.webp
   - /src/images/west-residence/west-residence-6.webp
   - /src/images/west-residence/west-residence-1.webp
-featured: true
+featured: false
 ---

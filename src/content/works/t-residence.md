@@ -16,5 +16,5 @@ images:
   - /src/images/t-residence/t-residence-11.webp
   - /src/images/t-residence/t-residence-13.webp
   - /src/images/t-residence/t-residence-17.webp
-featured: true
+featured: false
 ---

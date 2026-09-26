@@ -4,19 +4,19 @@ import { Image } from "astro:assets";
 import ctaImg from "@/images/go-residence/go-residence-3.webp";
 ---
 
-<section class="h-svh relative m-2">
+<section class="h-[calc(100svh-1rem)] relative m-2">
   <Image
     src={ctaImg}
     alt="go-residence-living-room"
     loading="lazy"
-    class="low-brightness"
+    class="low-brightness rounded-lg"
   />
 
   <div class="flex flex-col justify-between items-center size-full absolute top-0 py-4">
     <h2>Get in touch</h2>
     <button
       data-contact-open
-      class="text-xl! max-w-lg text-center leading-none tracking-tight cursor-pointer"
+      class="text-lg md:text-xl max-w-lg text-center leading-none tracking-tight cursor-pointer text-balance"
     >
       Let's build your dream home
     </button>

@@ -9,5 +9,5 @@ images:
   - /src/images/g-residence/g-residence-1.webp
   - /src/images/g-residence/g-residence-2.webp
   - /src/images/g-residence/g-residence-3.webp
-featured: true
+featured: false
 ---

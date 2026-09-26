@@ -37,9 +37,9 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   <div
     data-overlay-panel
-    class="relative h-full bg-black w-full lg:w-[40svw] p-4 text-sm overflow-y-auto overscroll-contain touch-pan-y"
+    class="relative h-full bg-black w-full md:max-w-120 p-4 text-sm overflow-y-auto overscroll-contain touch-pan-y"
   >
-    <div class="flex justify-between items-end mb-8">
+    <div class="flex justify-between items-end mb-16">
       <h2 id={`${id}-title`} class="uppercase">
         Project Enquiry
       </h2>
@@ -77,7 +77,7 @@ const { id = "contact-overlay", open = false } = Astro.props;
       </div>
 
       <!-- Step 1: Personal Details -->
-      <div data-step="1" class="[&[hidden]]:hidden">
+      <div data-step="1" class="[[hidden]]:hidden">
         <h3 class="uppercase border-b border-white/40 pb-2 mb-4">
           Personal Details
         </h3>

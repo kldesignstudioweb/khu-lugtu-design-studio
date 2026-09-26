@@ -14,5 +14,5 @@ images:
   - /src/images/p-house/p-house-6.webp
   - /src/images/p-house/p-house-7.webp
   - /src/images/p-house/p-house-8.webp
-featured: true
+featured: false
 ---

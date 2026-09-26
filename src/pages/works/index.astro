@@ -17,7 +17,7 @@ const [heroWork, ...gridWorks] = works;
     title="Khu + Lugtu Design Studio | Architecture & Design Studio, Philippines | Works"
     description="Selected residential and commercial projects by Khu + Lugtu Design Studio."
 >
-    <main class="min-h-svh relative mt-[50svh]">
+    <main class="min-h-svh relative mt-[80svh]">
 
         {works.length > 0 ? (
             <div class="grid grid-cols-12 gap-2 m-2">
@@ -30,8 +30,7 @@ const [heroWork, ...gridWorks] = works;
                             <Image
                                 src={heroWork.coverImage}
                                 alt={`${heroWork.title} — ${heroWork.category}, ${heroWork.year}`}
-                                class="low-brightness h-svh"
-                                sizes="100vw"
+                                class="low-brightness h-[80svh] lg:h-svh rounded-lg"
                                 draggable="false"
                             />
                             <h1 class="leading-none m-4 absolute top-0 left-0">Selected Works</h1>
@@ -55,11 +54,10 @@ const [heroWork, ...gridWorks] = works;
                             <Image
                                 src={work.coverImage}
                                 alt={`${work.title} — ${work.category}, ${work.year}`}
-                                class="low-brightness h-svh aspect-square"
-                                sizes="(min-width: 768px) 50vw, 100vw"
+                                class="low-brightness h-[80svh] lg:h-svh rounded-lg aspect-auto"
                                 draggable="false"
                             />
-                            <div class="mt-2 absolute bottom-0 left-0 m-4">
+                            <div class="absolute bottom-0 left-0 m-4">
                                 <h2>{work.title}</h2>
                                 <p class="text-muted max-w-prose">
                                     {work.description}
