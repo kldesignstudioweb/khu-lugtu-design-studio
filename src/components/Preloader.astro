@@ -6,7 +6,7 @@ import logo from "@/images/logo.webp";
 <section
   id="preloader"
   aria-hidden="true"
-  class="bg-black inset-0 h-svh w-svw fixed top-0 left-0 z-999 flex justify-center items-center overflow-hidden"
+  class="preloader bg-black inset-0 h-svh w-svw fixed top-0 left-0 z-999 flex justify-center items-center overflow-hidden"
 >
   <div class="p-16">
     <Image
@@ -15,15 +15,65 @@ import logo from "@/images/logo.webp";
       alt=""
       loading="eager"
       draggable="false"
-      class="block object-cover aspect-auto max-h-16 w-max opacity-0"
+      class="preloader-logo block object-cover aspect-auto max-h-16 w-max"
     />
   </div>
 </section>
 
-<script>
-  import gsap from "gsap";
+<style>
+  .preloader-logo {
+    opacity: 0;
+  }
 
-  // Global type augmentation for preloader state
+  .preloader.is-running .preloader-logo {
+    animation:
+      preloader-logo-in 1.5s ease-out forwards,
+      preloader-logo-out 0.6s ease-in 1.8s forwards;
+  }
+
+  .preloader.is-running {
+    animation: preloader-out 0.5s ease-in-out 2.4s forwards;
+  }
+
+  @keyframes preloader-logo-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes preloader-logo-out {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes preloader-out {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preloader,
+    .preloader-logo {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
   declare global {
     interface Window {
       __preloaderShown?: boolean;
@@ -32,30 +82,32 @@ import logo from "@/images/logo.webp";
   }
 
   const PRELOADER_ID = "preloader";
-  const LOGO_ID = "preloader-logo";
   const COMPLETE_EVENT = "app:preloader-complete";
 
   const signalComplete = (): void => {
     if (window.__preloaderComplete) return;
+
     window.__preloaderComplete = true;
     window.dispatchEvent(new CustomEvent(COMPLETE_EVENT));
   };
 
   const removePreloader = (): void => {
-    document.getElementById(PRELOADER_ID)?.remove();
-    signalComplete();
-  };
-
-  const runPreloader = (): void => {
     const preloader = document.getElementById(PRELOADER_ID);
+
     if (!preloader) {
       signalComplete();
       return;
     }
 
-    const logoEl = document.getElementById(LOGO_ID);
-    if (!logoEl) {
-      removePreloader();
+    preloader.remove();
+    signalComplete();
+  };
+
+  const runPreloader = (): void => {
+    const preloader = document.getElementById(PRELOADER_ID);
+
+    if (!preloader) {
+      signalComplete();
       return;
     }
 
@@ -64,25 +116,22 @@ import logo from "@/images/logo.webp";
       return;
     }
 
-    gsap
-      .timeline({ onComplete: removePreloader })
-      .fromTo(
-        logoEl,
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 1.5, ease: "power2.out" },
-      )
-      .to(logoEl, {
-        autoAlpha: 0,
-        duration: 0.6,
-        ease: "power2.in",
-        delay: 0.3,
-      })
-      .to(preloader, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" });
+    const handleAnimationEnd = (event: AnimationEvent): void => {
+      if (event.animationName !== "preloader-out") return;
+
+      preloader.removeEventListener("animationend", handleAnimationEnd);
+      removePreloader();
+    };
+
+    preloader.addEventListener("animationend", handleAnimationEnd);
+
+    preloader.classList.add("is-running");
   };
 
-  // On SPA navigation, skip preloader but ensure signal fires
+  // Astro client-side navigation:
+  // the preloader must never run again during SPA navigation.
   document.addEventListener("astro:after-swap", () => {
-    window.__preloaderShown = false; // Reset for potential future hard loads
+    window.__preloaderShown = false;
     removePreloader();
   });
 
@@ -91,6 +140,7 @@ import logo from "@/images/logo.webp";
       signalComplete();
       return;
     }
+
     window.__preloaderShown = true;
     runPreloader();
   });
