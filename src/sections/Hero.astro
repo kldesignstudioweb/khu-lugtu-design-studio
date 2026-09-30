@@ -5,7 +5,7 @@ import heroImg1 from "@/images/go-residence/go-residence-3.webp";
 import heroImg2 from "@/images/pocket-house/pocket-house-5.webp";
 import heroImg3 from "@/images/kohi-shop/kohi-shop-3.webp";
 
-const SLIDE_DURATION_MS = 3000;
+const SLIDE_DURATION_MS = 5000;
 
 const slides = [
   { src: heroImg1, alt: "Go Residence living room" },
@@ -15,7 +15,7 @@ const slides = [
 ---
 
 <section
-  class="hero relative h-[calc(100svh-1rem)] overflow-hidden text-white"
+  class="hero relative h-svh overflow-hidden text-white"
   data-slideshow
   data-duration={SLIDE_DURATION_MS}
   aria-roledescription="carousel"

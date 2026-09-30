@@ -46,6 +46,10 @@ p {
   text-wrap: pretty;
 }
 
+a {
+  text-decoration: none;
+}
+
 /* Tailwind Classes */
 @theme {
   --text-sm: 14px;

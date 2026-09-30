@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-const DEFAULT_DURATION_MS = 3000;
+const DEFAULT_DURATION_MS = 5000;
 const MAX_FRAME_DELTA_MS = 100;
 const PRELOADER_COMPLETE_EVENT = "app:preloader-complete";
 

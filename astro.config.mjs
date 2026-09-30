@@ -8,13 +8,13 @@ import tailwindcss from "@tailwindcss/vite";
 import netlify from "@astrojs/netlify";
 
 export default defineConfig({
-  site: "https://kldesignstudio.com",
+  site: "https://khulugtu-ds.netlify.app",
 
   integrations: [
     sitemap(),
     robotsTxt({
       policy: [{ userAgent: "*", allow: "/" }],
-      sitemap: "https://kldesignstudio.com/sitemap-index.xml",
+      sitemap: "https://khulugtu-ds.netlify.app/sitemap-index.xml",
     }),
     autoImport(),
   ],

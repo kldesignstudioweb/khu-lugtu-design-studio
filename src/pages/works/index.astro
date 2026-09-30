@@ -14,63 +14,55 @@ const [heroWork, ...gridWorks] = works;
 ---
 
 <BaseLayout
-    title="Khu + Lugtu Design Studio | Architecture & Design Studio, Philippines | Works"
-    description="Selected residential and commercial projects by Khu + Lugtu Design Studio."
+  title="Khu + Lugtu Design Studio | Architectural Works & Projects"
+  description="Explore selected residential and commercial projects by Khu + Lugtu Design Studio, featuring thoughtful architectural design with a focus on minimalism, materiality, and space."
 >
-    <main class="min-h-svh relative mt-[80svh]">
+  <main class="min-h-svh relative mt-[80svh]">
+    {works.length > 0 ? (
+      <div class="grid grid-cols-12 gap-2 m-2">
+        {heroWork && (
+          <article class="col-span-12 overflow-hidden">
+            <a href={`/works/${heroWork.slug}`} class="group block relative">
+              <Image
+                src={heroWork.coverImage}
+                alt={`${heroWork.title} — ${heroWork.category}, ${heroWork.year}`}
+                class="low-brightness h-[80svh] lg:h-svh rounded-lg"
+                loading="eager"
+                draggable="false"
+              />
+              <h1 class="leading-none m-4 absolute top-0 left-0">
+                Selected Works
+              </h1>
 
-        {works.length > 0 ? (
-            <div class="grid grid-cols-12 gap-2 m-2">
-                {heroWork && (
-                    <article class="col-span-12 overflow-hidden">
-                        <a
-                            href={`/works/${heroWork.slug}`}
-                            class="group block relative"
-                        >
-                            <Image
-                                src={heroWork.coverImage}
-                                alt={`${heroWork.title} — ${heroWork.category}, ${heroWork.year}`}
-                                class="low-brightness h-[80svh] lg:h-svh rounded-lg"
-                                draggable="false"
-                            />
-                            <h1 class="leading-none m-4 absolute top-0 left-0">Selected Works</h1>
-                            
-                            <div class="mt-2 absolute bottom-0 left-0 m-4">
-                                <h2>{heroWork.title}</h2>
-                                <p class="text-muted max-w-prose">
-                                    {heroWork.description}
-                                </p>
-                            </div>
-                        </a>
-                    </article>
-                )}
-
-                {gridWorks.map((work) => (
-                    <article class="col-span-12 lg:col-span-6">
-                        <a
-                            href={`/works/${work.slug}`}
-                            class="group block relative"
-                        >
-                            <Image
-                                src={work.coverImage}
-                                alt={`${work.title} — ${work.category}, ${work.year}`}
-                                class="low-brightness h-[80svh] lg:h-svh rounded-lg aspect-auto"
-                                draggable="false"
-                            />
-                            <div class="absolute bottom-0 left-0 m-4">
-                                <h2>{work.title}</h2>
-                                <p class="text-muted max-w-prose">
-                                    {work.description}
-                                </p>
-                            </div>
-                        </a>
-                    </article>
-                ))}
-            </div>
-        ) : (
-            <p class="p-4 text-muted">No works found.</p>
+              <div class="mt-2 absolute bottom-0 left-0 m-4">
+                <h2>{heroWork.title}</h2>
+                <p class="text-muted max-w-prose">{heroWork.description}</p>
+              </div>
+            </a>
+          </article>
         )}
 
-        <CTA />
-    </main>
+        {gridWorks.map((work) => (
+          <article class="col-span-12 lg:col-span-6">
+            <a href={`/works/${work.slug}`} class="group block relative">
+              <Image
+                src={work.coverImage}
+                alt={`${work.title} — ${work.category}, ${work.year}`}
+                class="low-brightness h-[80svh] lg:h-svh rounded-lg aspect-auto"
+                draggable="false"
+              />
+              <div class="absolute bottom-0 left-0 m-4">
+                <h2>{work.title}</h2>
+                <p class="text-muted max-w-prose">{work.description}</p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p class="p-4 text-muted">No works found.</p>
+    )}
+
+    <CTA />
+  </main>
 </BaseLayout>
