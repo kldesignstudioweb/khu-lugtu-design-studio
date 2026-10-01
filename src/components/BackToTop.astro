@@ -3,7 +3,7 @@
   id="back-to-top"
   type="button"
   aria-label="Back to top"
-  class="back-to-top"
+  class="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 grid size-12 place-items-center rounded-full border-none bg-white p-0 text-[#111] opacity-0 invisible pointer-events-none cursor-pointer shadow-[0_4px_14px_rgb(0_0_0/0.15)] transition-[opacity,visibility] duration-250 ease-out motion-reduce:transform-none motion-reduce:transition-[opacity,visibility]"
 >
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -20,109 +20,72 @@
     <path d="M12 19V5M5 12l7-7 7 7" />
   </svg>
 </button>
-
-<style>
-  .back-to-top {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 50;
-
-    width: 3rem;
-    height: 3rem;
-    display: grid;
-    place-items: center;
-
-    border: none;
-    border-radius: 9999px;
-    background: white;
-    color: #111;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgb(0 0 0 / 0.15);
-
-    /* Hidden state */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(1rem);
-    transition:
-      opacity 0.25s ease,
-      transform 0.25s ease,
-      visibility 0.25s;
-
-    /* Safe area for iOS notch devices */
-    margin-bottom: env(safe-area-inset-bottom, 0);
-  }
-
-  .back-to-top.is-visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  .back-to-top:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .back-to-top {
-      transition:
-        opacity 0.2s ease,
-        visibility 0.2s;
-      transform: none;
-    }
-  }
-</style>
-
 <script>
   const init = () => {
     const button = document.getElementById("back-to-top");
-    if (!button || button.dataset.bound === "true") return;
+    if (!(button instanceof HTMLButtonElement)) return;
+    if (button.dataset.bound === "true") return;
     button.dataset.bound = "true";
-
     const THRESHOLD = Number(button.dataset.threshold) || 300;
     let ticking = false;
     let rafId = 0;
-
+    const show = () => {
+      button.classList.remove(
+        "opacity-0",
+        "invisible",
+        "pointer-events-none",
+      );
+      button.classList.add(
+        "opacity-100",
+        "visible",
+        "pointer-events-auto",
+      );
+    };
+    const hide = () => {
+      button.classList.remove(
+        "opacity-100",
+        "visible",
+        "pointer-events-auto",
+      );
+      button.classList.add(
+        "opacity-0",
+        "invisible",
+        "pointer-events-none",
+      );
+    };
     const toggleVisibility = () => {
-      const scrolled = window.scrollY || document.documentElement.scrollTop;
-      button.classList.toggle("is-visible", scrolled > THRESHOLD);
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      if (scrollTop > THRESHOLD) {
+        show();
+      } else {
+        hide();
+      }
       ticking = false;
     };
-
     const onScroll = () => {
-      if (!ticking) {
-        rafId = requestAnimationFrame(toggleVisibility);
-        ticking = true;
-      }
+      if (ticking) return;
+      rafId = requestAnimationFrame(toggleVisibility);
+      ticking = true;
     };
-
     const onClick = () => {
       const reduce = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
       window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pageshow", toggleVisibility);
     button.addEventListener("click", onClick);
     toggleVisibility();
-
-    // Cleanup on Astro navigation
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pageshow", toggleVisibility);
-        button.removeEventListener("click", onClick);
-        cancelAnimationFrame(rafId);
-        delete button.dataset.bound;
-      },
-      { once: true },
-    );
+    const cleanup = () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pageshow", toggleVisibility);
+      button.removeEventListener("click", onClick);
+      cancelAnimationFrame(rafId);
+      delete button.dataset.bound;
+    };
+    document.addEventListener("astro:before-swap", cleanup, { once: true });
   };
-
   init();
   document.addEventListener("astro:page-load", init);
 </script>

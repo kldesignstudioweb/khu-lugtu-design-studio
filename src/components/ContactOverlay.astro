@@ -37,7 +37,8 @@ const { id = "contact-overlay", open = false } = Astro.props;
 
   <div
     data-overlay-panel
-    class="relative h-full bg-black w-full md:max-w-120 p-4 text-sm overflow-y-auto overscroll-contain touch-pan-y"
+    data-lenis-prevent-touch
+    class="relative h-full min-h-0 bg-black w-full md:max-w-120 p-4 text-sm overflow-y-auto overscroll-y-contain touch-pan-y"
   >
     <div class="flex justify-between items-end mb-16">
       <h2 id={`${id}-title`} class="uppercase">
