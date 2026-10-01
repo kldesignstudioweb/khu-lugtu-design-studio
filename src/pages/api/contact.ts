@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 export const prerender = false;
 
 // Studio Email
-const RECIPIENT_EMAIL = "hello.lanceflores@gmail.com";
+const RECIPIENT_EMAIL = "kldesignstudio.arch@gmail.com";
 
 const REQUIRED_FIELDS = [
   "fullName",
