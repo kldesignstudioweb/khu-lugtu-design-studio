@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { getSecret } from "astro:env/server";
 import nodemailer from "nodemailer";
 
 export const prerender = false;
@@ -67,24 +68,23 @@ function escapeHtml(value: string): string {
 }
 
 function getTransporter() {
-  const host = import.meta.env.SMTP_HOST;
-  const port = Number(import.meta.env.SMTP_PORT ?? "587");
-  const user = import.meta.env.SMTP_USER;
-  const pass = import.meta.env.SMTP_PASS;
+  const user = getSecret("SMTP_USER");
+  const pass = getSecret("SMTP_PASS");
 
-  if (!host || !user || !pass || !Number.isFinite(port)) {
+  if (!user || !pass) {
     throw new Error("SMTP configuration is incomplete.");
   }
 
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: {
-      user,
-      pass,
-    },
-  });
+  return {
+    transporter: nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user,
+        pass,
+      },
+    }),
+    user,
+  };
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -210,7 +210,7 @@ export const POST: APIRoute = async ({ request }) => {
     // SMTP
     // --------------------------------------------------------------
 
-    const transporter = getTransporter();
+    const { transporter, user } = getTransporter();
 
     // --------------------------------------------------------------
     // Escape values used in HTML email
@@ -239,7 +239,7 @@ export const POST: APIRoute = async ({ request }) => {
     // ==============================================================
 
     await transporter.sendMail({
-      from: `"Website Contact Form" <${import.meta.env.SMTP_USER}>`,
+      from: `"Website Contact Form" <${user}>`,
       to: RECIPIENT_EMAIL,
 
       // Clicking Reply from the studio inbox replies directly to
@@ -373,7 +373,7 @@ Construction Timeline: ${submission.timeline}
     // ==============================================================
 
     await transporter.sendMail({
-      from: `"Khu + Lugtu Design Studio" <${import.meta.env.SMTP_USER}>`,
+      from: `"Khu + Lugtu Design Studio" <${user}>`,
 
       // IMPORTANT:
       // This is the email address entered by the user.
