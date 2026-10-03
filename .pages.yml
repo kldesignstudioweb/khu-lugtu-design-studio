@@ -90,6 +90,16 @@ content:
         type: boolean
         description: "Enable this if the project should appear in the featured works section."
 
+      actions: 
+      - name: publish-site 
+        label: Publish changes 
+        scope: collection 
+        workflow: pages-cms-publish.yml 
+        confirm: 
+          title: Publish changes? 
+          message: This will publish the current CMS changes to the live website. 
+          button: Publish
+
 
 settings:
   commit:
