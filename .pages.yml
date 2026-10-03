@@ -90,7 +90,6 @@ content:
         type: boolean
         description: "Enable this if the project should appear in the featured works section."
 
-
 settings:
   commit:
     templates:
@@ -98,3 +97,13 @@ settings:
       update: "refactor: update {path}"
       delete: "refactor: delete {path}"
       rename: "refactor: rename {oldPath} -> {newPath}"
+
+actions:
+  - name: publish-site
+    label: Publish changes
+    workflow: pages-cms-publish.yml
+    ref: current
+    confirm:
+      title: Publish changes?
+      message: This will publish the current CMS changes to the live website.
+      button: Publish
