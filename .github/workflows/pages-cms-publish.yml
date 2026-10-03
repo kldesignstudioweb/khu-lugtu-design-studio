@@ -1,0 +1,50 @@
+name: Publish site
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: Pages CMS payload as JSON
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch branches
+        run: |
+          git fetch origin main
+          git fetch origin cms-draft
+
+      - name: Publish cms-draft to main
+        run: |
+          git checkout main
+          git reset --hard origin/main
+          git merge --no-edit origin/cms-draft
+          git push origin main
+
+      - name: Synchronize cms-draft with main
+        run: |
+          git checkout cms-draft
+          git reset --hard origin/main
+          git push --force-with-lease origin cms-draft
