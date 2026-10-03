@@ -103,17 +103,24 @@ const isWide = (i: number) =>
 
         {/* ---------- Info ---------- */}
         <div class="h-[80svh] lg:h-svh relative m-2">
-            {infoImage && (
-                <Image
-                    src={infoImage}
-                    alt={`${title} — interior view`}
-                    loading="lazy"
-                    decoding="async"
-                    class="low-brightness rounded-lg aspect-auto"
-                    draggable="false"
-                    {...fullBleed}
-                />
-            )}
+          {infoImage && (
+              <button
+                  type="button"
+                  class="lightbox-trigger size-full"
+                  data-lightbox-trigger
+                  aria-label={`Open ${title} — interior view`}
+              >
+                  <Image
+                      src={infoImage}
+                      alt={`${title} — interior view`}
+                      loading="lazy"
+                      decoding="async"
+                      class="low-brightness rounded-lg aspect-auto size-full object-cover"
+                      draggable="false"
+                      {...fullBleed}
+                  />
+              </button>
+          )}
 
             <div class="absolute top-0 left-0 m-4">
                 <p class="max-w-sm text-balance mb-8">
@@ -137,22 +144,57 @@ const isWide = (i: number) =>
         {/* ---------- Gallery ---------- */}
         {galleryImages.length > 0 && (
             <div class="grid lg:grid-cols-2 gap-2 m-2">
-                {galleryImages.map((img, i) => (
-                    <Image
-                        src={img}
-                        alt={`${title} — image ${i + 1}`}
-                        loading="lazy"
-                        decoding="async"
-                        draggable="false"
-                        class:list={[
-                            "h-[80svh] lg:h-svh low-brightness rounded-lg aspect-auto",
-                            isWide(i) && "lg:col-span-2",
-                        ]}
-                        {...halfWidth}
-                    />
-                ))}
+              {galleryImages.map((img, i) => (
+                  <button
+                      type="button"
+                      class:list={[
+                          "lightbox-trigger",
+                          isWide(i) && "lg:col-span-2",
+                      ]}
+                      data-lightbox-trigger
+                      aria-label={`Open ${title} — image ${i + 1}`}
+                  >
+                      <Image
+                          src={img}
+                          alt={`${title} — image ${i + 1}`}
+                          loading="lazy"
+                          decoding="async"
+                          draggable="false"
+                          class="h-[80svh] lg:h-svh low-brightness rounded-lg aspect-auto size-full object-cover"
+                          {...halfWidth}
+                      />
+                  </button>
+              ))}
             </div>
         )}
+
+        <dialog
+            id="image-lightbox"
+            aria-label="Image preview"
+            class="m-0 size-full max-h-none max-w-none p-2 bg-black/50 backdrop-blur-md"
+        >
+            <div
+                class="relative flex size-full items-center justify-center p-2"
+                data-lightbox-surface
+            >
+                <button
+                    type="button"
+                    data-lightbox-close
+                    class="absolute right-0 top-0 z-10 text-sm text-white"
+                    aria-label="Close image preview"
+                >
+                    ( Close )
+                </button>
+        
+                <img
+                    id="lightbox-image"
+                    src=""
+                    alt=""
+                    class="max-h-full max-w-full object-contain"
+                    draggable="false"
+                />
+            </div>
+        </dialog>
 
         {/* ---------- Outro: next work + back link ---------- */}
         <div class="h-[calc(100svh-1rem)] relative m-2">
@@ -200,3 +242,261 @@ const isWide = (i: number) =>
         </div>
     </section>
 </BaseLayout>
+
+<script>
+    type LenisController = {
+        stop: () => void;
+        start: () => void;
+    };
+
+    let cleanupLightbox: (() => void) | null = null;
+
+    const initLightbox = () => {
+        // Always clean up the previous page's instance first.
+        cleanupLightbox?.();
+        cleanupLightbox = null;
+
+        const mobileMedia = window.matchMedia("(max-width: 767px)");
+
+        // Do not initialize the lightbox on iPad or larger screens.
+        if (!mobileMedia.matches) return;
+
+        const dialog = document.querySelector<HTMLDialogElement>(
+            "#image-lightbox",
+        );
+        const lightboxImage = document.querySelector<HTMLImageElement>(
+            "#lightbox-image",
+        );
+        const surface = document.querySelector<HTMLElement>(
+            "[data-lightbox-surface]",
+        );
+        const closeButton = document.querySelector<HTMLButtonElement>(
+            "[data-lightbox-close]",
+        );
+
+        if (!dialog || !lightboxImage || !surface || !closeButton) return;
+
+        const triggers = Array.from(
+            document.querySelectorAll<HTMLButtonElement>(
+                "[data-lightbox-trigger]",
+            ),
+        );
+
+        if (!triggers.length) return;
+
+        const lenis = (
+            window as typeof window & {
+                __lenis?: LenisController;
+            }
+        ).__lenis;
+
+        let currentIndex = 0;
+        let touchStartX = 0;
+        let ignoreNextClick = false;
+        let scrollLocked = false;
+
+        const previousHtmlOverflow =
+            document.documentElement.style.overflow;
+        const previousBodyOverflow = document.body.style.overflow;
+
+        const lockScroll = () => {
+            if (scrollLocked) return;
+
+            document.documentElement.style.overflow = "hidden";
+            document.body.style.overflow = "hidden";
+
+            lenis?.stop();
+
+            scrollLocked = true;
+        };
+
+        const unlockScroll = () => {
+            if (!scrollLocked) return;
+
+            if (previousHtmlOverflow) {
+                document.documentElement.style.overflow =
+                    previousHtmlOverflow;
+            } else {
+                document.documentElement.style.removeProperty("overflow");
+            }
+
+            if (previousBodyOverflow) {
+                document.body.style.overflow = previousBodyOverflow;
+            } else {
+                document.body.style.removeProperty("overflow");
+            }
+
+            lenis?.start();
+
+            scrollLocked = false;
+        };
+
+        const showImage = (index: number) => {
+            const trigger = triggers[index];
+
+            if (!trigger) return;
+
+            const image = trigger.querySelector<HTMLImageElement>("img");
+
+            if (!image) return;
+
+            currentIndex = index;
+            lightboxImage.src = image.currentSrc || image.src;
+            lightboxImage.alt = image.alt;
+        };
+
+        const closeLightbox = () => {
+            if (!dialog.open) return;
+
+            dialog.close();
+        };
+
+        const showPrevious = () => {
+            showImage(
+                (currentIndex - 1 + triggers.length) % triggers.length,
+            );
+        };
+
+        const showNext = () => {
+            showImage((currentIndex + 1) % triggers.length);
+        };
+
+        const openLightbox = (event: Event) => {
+            if (!mobileMedia.matches || dialog.open) return;
+
+            const trigger = event.currentTarget as HTMLButtonElement;
+            const index = triggers.indexOf(trigger);
+
+            if (index === -1) return;
+
+            showImage(index);
+            dialog.showModal();
+            lockScroll();
+        };
+
+        const handleDialogClose = () => {
+            unlockScroll();
+
+            lightboxImage.src = "";
+            lightboxImage.alt = "";
+        };
+
+        const handleSurfaceClick = (event: MouseEvent) => {
+            if (ignoreNextClick) {
+                ignoreNextClick = false;
+                return;
+            }
+
+            if (
+                event.target instanceof Element &&
+                event.target.closest("[data-lightbox-close]")
+            ) {
+                return;
+            }
+
+            if (!mobileMedia.matches || !dialog.open) return;
+
+            const midpoint = window.innerWidth / 2;
+
+            if (event.clientX < midpoint) {
+                showPrevious();
+            } else {
+                showNext();
+            }
+        };
+
+        const handleTouchStart = (event: TouchEvent) => {
+            if (!mobileMedia.matches || !dialog.open) return;
+
+            const touch = event.changedTouches[0];
+
+            if (!touch) return;
+
+            touchStartX = touch.clientX;
+        };
+
+        const handleTouchEnd = (event: TouchEvent) => {
+            if (!mobileMedia.matches || !dialog.open) return;
+
+            const touch = event.changedTouches[0];
+
+            if (!touch) return;
+
+            const distance = touch.clientX - touchStartX;
+
+            if (Math.abs(distance) < 40) return;
+
+            // Prevent the synthetic click that can follow a swipe
+            // from navigating to another image a second time.
+            ignoreNextClick = true;
+
+            if (distance < 0) {
+                showNext();
+            } else {
+                showPrevious();
+            }
+        };
+
+        const handleMediaChange = (event: MediaQueryListEvent) => {
+            if (!event.matches && dialog.open) {
+                closeLightbox();
+            }
+        };
+
+        triggers.forEach((trigger) => {
+            trigger.addEventListener("click", openLightbox);
+        });
+
+        closeButton.addEventListener("click", closeLightbox);
+        surface.addEventListener("click", handleSurfaceClick);
+        surface.addEventListener("touchstart", handleTouchStart, {
+            passive: true,
+        });
+        surface.addEventListener("touchend", handleTouchEnd, {
+            passive: true,
+        });
+
+        dialog.addEventListener("close", handleDialogClose);
+        mobileMedia.addEventListener("change", handleMediaChange);
+
+        cleanupLightbox = () => {
+            triggers.forEach((trigger) => {
+                trigger.removeEventListener("click", openLightbox);
+            });
+
+            closeButton.removeEventListener("click", closeLightbox);
+            surface.removeEventListener("click", handleSurfaceClick);
+            surface.removeEventListener("touchstart", handleTouchStart);
+            surface.removeEventListener("touchend", handleTouchEnd);
+
+            dialog.removeEventListener("close", handleDialogClose);
+            mobileMedia.removeEventListener("change", handleMediaChange);
+
+            if (dialog.open) {
+                dialog.close();
+            }
+
+            unlockScroll();
+        };
+    };
+
+    document.addEventListener("astro:page-load", initLightbox);
+
+    document.addEventListener("astro:before-swap", () => {
+        cleanupLightbox?.();
+        cleanupLightbox = null;
+    });
+</script>
+
+<style>
+    #image-lightbox {
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+    }
+
+    @media (min-width: 768px) {
+        #image-lightbox {
+            display: none;
+        }
+    }
+</style>

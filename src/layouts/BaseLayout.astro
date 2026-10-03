@@ -21,7 +21,17 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <SEO title={title} description={description} />
+    <SEO
+      title={title}
+      description={description}
+      openGraph={{
+        basic: {
+          title,
+          type: "website",
+          image: "https://khulugtu-ds.netlify.app/klds-og-image.png",
+        },
+      }}
+    />
     <ClientRouter />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
