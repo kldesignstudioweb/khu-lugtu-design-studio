@@ -23,6 +23,10 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  adapter: netlify(),
+  adapter: netlify({
+    devFeatures: {
+      edgeFunctions: false,
+    },
+  }),
   output: "server",
 });
