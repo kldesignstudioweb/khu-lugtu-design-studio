@@ -15,7 +15,7 @@ const works = defineCollection({
     category: z.enum(["Residential", "Commercial"]),
     description: z.string(),
     coverImage: z.string(),
-    images: z.array(z.string()).min(1).max(10),
+    images: z.array(z.string()).min(1).max(20),
     featured: z.boolean().optional().default(false),
   }),
 });
