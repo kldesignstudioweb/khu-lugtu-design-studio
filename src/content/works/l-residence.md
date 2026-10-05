@@ -3,10 +3,7 @@ title: L Residence
 slug: l-residence
 year: 2026
 category: Residential
-description: For this 750 sqm Metro Manila home, our clients wanted a clean,
-  relaxing space that felt high-end yet functional. Instead of flashy decor,
-  luxury to them meant a home built around their active lifestyle, hobbies, and
-  everyday habits.
+description: LUXURY - ELEGANT - MINIMAL
 coverImage: /src/images/l-residence/1.webp
 images:
   - /src/images/l-residence/1.webp
