@@ -1,10 +1,10 @@
 ---
-slug: go-residence
 title: Go Residence
-year: 2026
+slug: go-residence
+year: 2024
 category: Residential
-description: A compact urban dwelling organized around a central courtyard.
-coverImage: /src/images/go-residence/go-residence-3.webp
+description: JAPANESE - MINIMAL - PRIVATE
+coverImage: /src/images/go-residence/go-residence-1.webp
 images:
   - /src/images/go-residence/go-residence-2.webp
   - /src/images/go-residence/go-residence-4.webp
