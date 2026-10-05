@@ -1,9 +1,9 @@
 ---
-slug: p-house
 title: P House
-year: 2026
+slug: p-house
+year: 2024
 category: Residential
-description: A retreat that recedes into the landscape it sits within.
+description: WELCOMING - BOLD- MINIMAL
 coverImage: /src/images/p-house/p-house-2.webp
 images:
   - /src/images/p-house/p-house-1.webp
