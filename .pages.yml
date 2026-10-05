@@ -80,7 +80,7 @@ content:
         required: true
         options:
           multiple:
-            max: 10
+            max: 20
             unique: true
             extensions: [webp]
         description: "Add up to 10 project images. Arrange them in the order you want them displayed."
