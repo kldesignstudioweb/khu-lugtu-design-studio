@@ -1,9 +1,9 @@
 ---
-slug: g-residence
 title: G Residence
-year: 2026
+slug: g-residence
+year: 2025
 category: Residential
-description: A retreat that recedes into the landscape it sits within.
+description: SLEEK - MODERN - MINIMAL
 coverImage: /src/images/g-residence/g-residence-1.webp
 images:
   - /src/images/g-residence/g-residence-1.webp
