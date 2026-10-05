@@ -1,9 +1,9 @@
 ---
 title: B6 House
 slug: b6-house
-year: 2026
+year: 2025
 category: Residential
-description: A retreat that recedes into the landscape it sits within.
+description: UNIQUE - MINIMAL - FLEXIBLE
 coverImage: /src/images/b6-house/b6-house-20.webp
 images:
   - /src/images/b6-house/b6-house-3.webp
