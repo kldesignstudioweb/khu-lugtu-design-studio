@@ -83,7 +83,7 @@ content:
             max: 20
             unique: true
             extensions: [webp]
-        description: "Add up to 10 project images. Arrange them in the order you want them displayed."
+        description: "Add up to 20 project images. Arrange them in the order you want them displayed."
 
       - name: featured
         label: Featured Project
