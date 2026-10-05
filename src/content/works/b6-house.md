@@ -16,5 +16,5 @@ images:
   - /src/images/b6-house/b6-house-11.webp
   - /src/images/b6-house/b6-house-12.webp
   - /src/images/b6-house/b6-house-13.webp
-featured: false
+featured: true
 ---
