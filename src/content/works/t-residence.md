@@ -3,7 +3,7 @@ title: T Residence
 slug: t-residence
 year: 2025
 category: Residential
-description: A retreat that recedes into the landscape it sits within.
+description: JAPANESE - MINIMALIST - PRIVATE
 coverImage: /src/images/t-residence/t-residence-1.webp
 images:
   - /src/images/t-residence/t-residence-3.webp
