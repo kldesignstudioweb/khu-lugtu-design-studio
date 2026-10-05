@@ -1,9 +1,9 @@
 ---
 title: Kohi Shop
 slug: kohi-shop
-year: 2026
+year: 2023
 category: Commercial
-description: A retreat that recedes into the landscape it sits within.
+description: JAPANESE - WARM- WELCOMING
 coverImage: /src/images/kohi-shop/kohi-shop-1.webp
 images:
   - /src/images/kohi-shop/kohi-shop-2.webp
