@@ -42,9 +42,3 @@ jobs:
           git reset --hard origin/main
           git merge --no-edit origin/cms-draft
           git push origin main
-
-      - name: Synchronize cms-draft with main
-        run: |
-          git checkout cms-draft
-          git reset --hard origin/main
-          git push --force-with-lease origin cms-draft
