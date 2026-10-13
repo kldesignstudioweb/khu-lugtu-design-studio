@@ -15,7 +15,7 @@ import logo from "@/images/logo.webp";
       alt=""
       loading="eager"
       draggable="false"
-      class="preloader-logo block object-cover aspect-auto max-h-16 w-max"
+      class="preloader-logo block max-h-16 w-max"
     />
   </div>
 </section>
@@ -78,13 +78,64 @@ import logo from "@/images/logo.webp";
     interface Window {
       __preloaderShown?: boolean;
       __preloaderComplete?: boolean;
+      __lenis?: {
+        start: () => void;
+        stop: () => void;
+      };
     }
   }
 
   const PRELOADER_ID = "preloader";
   const COMPLETE_EVENT = "app:preloader-complete";
+  const SCROLL_LOCK_CLASS = "preloader-scroll-locked";
+
+  let originalOverflow: string | null = null;
+  let originalScrollBehavior: string | null = null;
+  let isScrollLocked = false;
+
+  const lockScroll = (): void => {
+    if (isScrollLocked) return;
+
+    const root = document.documentElement;
+
+    // Preserve existing inline styles rather than overwriting them permanently.
+    originalOverflow = root.style.overflow;
+    originalScrollBehavior = root.style.scrollBehavior;
+
+    root.classList.add(SCROLL_LOCK_CLASS);
+    root.style.overflow = "hidden";
+    root.style.scrollBehavior = "auto";
+
+    window.__lenis?.stop();
+
+    isScrollLocked = true;
+  };
+
+  const unlockScroll = (): void => {
+    if (!isScrollLocked) return;
+
+    const root = document.documentElement;
+
+    root.classList.remove(SCROLL_LOCK_CLASS);
+
+    if (originalOverflow !== null) {
+      root.style.overflow = originalOverflow;
+    }
+
+    if (originalScrollBehavior !== null) {
+      root.style.scrollBehavior = originalScrollBehavior;
+    }
+
+    window.__lenis?.start();
+
+    originalOverflow = null;
+    originalScrollBehavior = null;
+    isScrollLocked = false;
+  };
 
   const signalComplete = (): void => {
+    unlockScroll();
+
     if (window.__preloaderComplete) return;
 
     window.__preloaderComplete = true;
@@ -92,14 +143,7 @@ import logo from "@/images/logo.webp";
   };
 
   const removePreloader = (): void => {
-    const preloader = document.getElementById(PRELOADER_ID);
-
-    if (!preloader) {
-      signalComplete();
-      return;
-    }
-
-    preloader.remove();
+    document.getElementById(PRELOADER_ID)?.remove();
     signalComplete();
   };
 
@@ -111,27 +155,37 @@ import logo from "@/images/logo.webp";
       return;
     }
 
+    lockScroll();
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       removePreloader();
       return;
     }
 
     const handleAnimationEnd = (event: AnimationEvent): void => {
-      if (event.animationName !== "preloader-out") return;
+      if (
+        event.target !== preloader ||
+        event.animationName !== "preloader-out"
+      ) {
+        return;
+      }
 
       preloader.removeEventListener("animationend", handleAnimationEnd);
+
       removePreloader();
     };
 
     preloader.addEventListener("animationend", handleAnimationEnd);
-
     preloader.classList.add("is-running");
   };
 
-  // Astro client-side navigation:
-  // the preloader must never run again during SPA navigation.
+  // Never show the initial-load preloader during client-side navigation.
+  document.addEventListener("astro:before-swap", () => {
+    unlockScroll();
+  });
+
   document.addEventListener("astro:after-swap", () => {
-    window.__preloaderShown = false;
+    window.__preloaderShown = true;
     removePreloader();
   });
 

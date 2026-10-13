@@ -19,6 +19,27 @@ const { title, description } = Astro.props;
 <!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-FX9PYVNRB1"
+    ></script>
+    <script>
+      declare global {
+        interface Window {
+          dataLayer: unknown[][];
+          gtag: (...args: unknown[]) => void;
+        }
+      }
+
+      window.dataLayer = window.dataLayer || [];
+
+      window.gtag = (...args: unknown[]) => {
+        window.dataLayer.push(args);
+      };
+
+      window.gtag("js", new Date());
+      window.gtag("config", "G-FX9PYVNRB1");
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <SEO
@@ -37,6 +58,10 @@ const { title, description } = Astro.props;
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <meta
+      name="google-site-verification"
+      content="Af34DYMYH8EPkoVHveBzhZ9aif6-TFDiy-3oSzeBibQ"
+    />
   </head>
 
   <body class="antialiased text-base">

@@ -27,8 +27,13 @@ const [heroWork, ...gridWorks] = works;
                 src={heroWork.coverImage}
                 alt={`${heroWork.title} — ${heroWork.category}, ${heroWork.year}`}
                 class="low-brightness h-[80svh] lg:h-svh rounded-lg"
+                widths={[640, 960, 1280, 1600, 1920, 2560]}
+                sizes="100vw"
+                format="webp"
+                quality={80}
                 loading="eager"
                 draggable="false"
+                title="View Project"
               />
               <h1 class="leading-none m-4 absolute top-0 left-0">
                 Selected Works
@@ -36,24 +41,28 @@ const [heroWork, ...gridWorks] = works;
 
               <div class="mt-2 absolute bottom-0 left-0 m-4">
                 <h2>{heroWork.title}</h2>
-                <p class="text-muted max-w-prose">{heroWork.description}</p>
+                <p class="max-w-prose">{heroWork.description}</p>
               </div>
             </a>
           </article>
         )}
 
         {gridWorks.map((work) => (
-          <article class="col-span-12 lg:col-span-6">
+          <article class="col-span-12">
             <a href={`/works/${work.slug}`} class="group block relative">
               <Image
                 src={work.coverImage}
                 alt={`${work.title} — ${work.category}, ${work.year}`}
-                class="low-brightness h-[80svh] lg:h-svh rounded-lg aspect-auto"
+                class="low-brightness h-[80svh] lg:h-svh rounded-lg"
+                widths={[640, 960, 1280, 1600, 1920, 2560]}
+                sizes="100vw"
+                loading="lazy"
                 draggable="false"
+                title="View Project"
               />
               <div class="absolute bottom-0 left-0 m-4">
                 <h2>{work.title}</h2>
-                <p class="text-muted max-w-prose">{work.description}</p>
+                <p class="max-w-prose">{work.description}</p>
               </div>
             </a>
           </article>

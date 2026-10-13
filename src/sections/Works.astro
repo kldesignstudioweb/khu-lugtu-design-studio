@@ -17,13 +17,18 @@ const count = String(featured.length).padStart(2, "0");
       <div class="featured-works__track flex flex-col md:flex-row gap-2 cursor-grab will-change-transform">
         {featured.map((work) => (
           <div class="featured-works__slide shrink-0 md:w-[90svw]">
-            <a href={`/works/${work.slug}`} class="relative block h-[80svh] md:h-svh">
+            <a
+              href={`/works/${work.slug}`}
+              class="relative block h-[80svh] md:h-svh"
+            >
               <Image
                 src={work.coverImage}
                 alt={work.title}
                 class="low-brightness rounded-lg"
                 loading="lazy"
                 draggable="false"
+                widths={[640, 960, 1280, 1600, 1920, 2560]}
+                sizes="(min-width: 1024px) 90vw, 100vw"
               />
 
               <h3 class="absolute bottom-0 left-0 m-4 text-lg md:text-xl leading-none uppercase">

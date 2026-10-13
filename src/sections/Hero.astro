@@ -32,11 +32,13 @@ const slides = [
         <Image
           src={slide.src}
           alt={slide.alt}
+          widths={[640, 960, 1280, 1600, 1920, 2560]}
+          sizes="100vw"
           loading={i === 0 ? "eager" : "lazy"}
-          fetchpriority={i === 0 ? "high" : "auto"}
-          decoding={i === 0 ? "sync" : "async"}
+          fetchpriority={i === 0 ? "high" : "low"}
+          decoding="async"
           class="low-brightness"
-          draggable="false"
+          draggable={false}
         />
       </div>
     ))}
