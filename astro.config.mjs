@@ -29,4 +29,8 @@ export default defineConfig({
     },
   }),
   output: "server",
+
+  image: {
+    responsiveStyles: true, 
+  }
 });

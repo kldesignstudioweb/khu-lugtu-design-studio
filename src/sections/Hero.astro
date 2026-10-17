@@ -32,8 +32,11 @@ const slides = [
         <Image
           src={slide.src}
           alt={slide.alt}
-          widths={[640, 960, 1280, 1600, 1920, 2560]}
+          layout="full-width"
           sizes="100vw"
+          fit="cover"
+          position="center"
+          quality="high"
           loading={i === 0 ? "eager" : "lazy"}
           fetchpriority={i === 0 ? "high" : "low"}
           decoding="async"

@@ -44,12 +44,10 @@ const galleryImages = images.filter(
 
 // Responsive presets (shared, not duplicated on every <Image/>).
 const fullBleed = {
-  widths: [640, 960, 1280, 1600, 1920, 2560],
   sizes: "100vw",
 };
 
 const halfWidth = {
-  widths: [640, 960, 1280, 1600, 1920, 2560],
   sizes: "(min-width: 1024px) 50vw, 100vw",
 };
 
@@ -77,6 +75,10 @@ const isWide = (i: number) =>
         decoding="async"
         class="low-brightness"
         draggable="false"
+        layout="full-width"
+        fit="cover"
+        position="center"
+        quality="high"
         {...fullBleed}
       />
 
@@ -101,6 +103,10 @@ const isWide = (i: number) =>
             decoding="async"
             class="low-brightness rounded-lg size-full"
             draggable="false"
+            layout="full-width"
+            fit="cover"
+            position="center"
+            quality="high"
             {...fullBleed}
           />
         </button>
@@ -140,6 +146,10 @@ const isWide = (i: number) =>
               decoding="async"
               draggable="false"
               class="h-[80svh] lg:h-svh low-brightness rounded-lg size-full"
+              layout="full-width"
+              fit="cover"
+              position="center"
+              quality="high"
               {...halfWidth}
             />
           </button>
@@ -184,6 +194,10 @@ const isWide = (i: number) =>
         decoding="async"
         draggable="false"
         class="low-brightness rounded-lg"
+        layout="full-width"
+        fit="cover"
+        position="center"
+        quality="high"
         {...fullBleed}
       />
 
